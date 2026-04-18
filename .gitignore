@@ -1,7 +1,21 @@
-node_modules
+# Dependency directories
+node_modules/
+
+# Environment and sensitive credentials
 .env
-.wwebjs_auth
-.wwebjs_cache
-token.json
-credentials.json
-sessions.json
+*.json
+!package.json
+!package-lock.json
+!ecosystem.config.js
+
+# WhatsApp Session and Auth data
+.wwebjs_auth/
+.wwebjs_cache/
+sessions/
+
+# Debug logs and System files
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+desktop.ini

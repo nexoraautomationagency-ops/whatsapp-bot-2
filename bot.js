@@ -19,7 +19,7 @@ const REQUIRED_ENV = [
 ];
 
 const ENV_FILE = path.join(__dirname, '.env');
-const missing = REQUIRED_ENV.filter(key => !process.env[key]);
+const missing = REQUIRED_ENV.filter(key => !process.env[key]?.trim());
 if (missing.length > 0) {
     console.error('❌ CRITICAL ERROR: Missing configuration in .env file:');
     missing.forEach(m => console.error(`   - ${m}`));
@@ -43,7 +43,6 @@ if (missing.length > 0) {
 
 // --- 1. CONFIGURATION & CONSTANTS ---
 
-// Admin and Group Configuration
 // Admin and Group Configuration
 let ADMIN_NUMBERS = process.env.ADMIN_NUMBERS ? process.env.ADMIN_NUMBERS.split(',').map(n => {
     let id = n.replace(/["']/g, '').trim();
@@ -77,6 +76,141 @@ const MESSAGE_RATE_MAX = 10;
 const ADMIN_BROADCAST_DELAY_MS = 800;
 const OUTBOUND_DELAY_MS = 250;
 
+const LANG = {
+    EN: 'en',
+    SI: 'si'
+};
+
+const I18N = {
+    [LANG.EN]: {
+        'language.prompt': '👋 Welcome! What language do you prefer?\n\n1️⃣ - English\n2️⃣ - Sinhala\n\n↩️ _(Type *back* for menu)_',
+        'language.invalid': '❌ Please reply with 1 for English or 2 for Sinhala.',
+        'menu.text': 'Welcome to *{{schoolName}}*! 🎓\n\nReply with a number:\n\n1️⃣ - New admission\n2️⃣ - Pay monthly fees\n3️⃣ - Send a message to Sir/Admin\n4️⃣ - Change language\n\n💡 _(Type *menu* anytime to restart)_',
+        'start.newAdmissionPrompt': '🤝 Let’s register you. What is your *full name*?\n\n🔙 _(Type *back* to edit | *menu* to exit)_',
+        'start.monthlyPrompt': '🆔 Please send your *Student ID* (e.g., 310001).\n\n🔙 _(Type *back* to edit | *menu* to exit)_',
+        'start.complainPrompt': '📝 Type your message below. I will send it directly to Sir/Admin.',
+        'start.cancelled': '👋 Session cancelled!\n\nWhenever you are ready, just type *menu*.',
+        'start.pickMenuOption': 'Please reply with 1, 2, 3, or 4 from the menu.',
+        'language.changed': '✅ Language updated!',
+        'start.cannotBackAfterReceipt': '❌ You can’t edit details after uploading the slip.',
+        'name.invalid': '❌ Invalid name. Please type your full name.',
+        'school.askAfterName': 'Hi *{{name}}*! 😊\nWhat is the name of your *school*?\n\n🔙 _(Type *back* to edit)_',
+        'school.invalid': '❌ Please enter a valid school name.',
+        'email.ask': '📧 What is your *email address*?\n\n🔙 _(Type *back* to edit)_',
+        'email.invalid': '❌ Invalid email. Please try again.',
+        'phone.ask': '📫 What is the *WhatsApp number* to add to the group?\n\n🔙 _(Type *back* to edit)_',
+        'phone.invalid': '❌ Invalid WhatsApp number. Try again.',
+        'grade.ask': '{{idLine}}🎓 What *Grade* are you in (6-11)?\n\n🔙 _(Type *back* to edit)_',
+        'month.confirmed': '✅ Saved for *{{resolved}}*.',
+        'grade.invalid': '❌ Please enter a grade between 6 and 11.',
+        'month.ask': '🗓️ Which *month* are you paying for (e.g., April)?\n\n🔙 _(Type *back* to edit)_',
+        'month.invalidUnrecognized': '❌ Invalid month. Try again.',
+        'tutes.ask': '✅ Saved for *{{resolved}}*.\nDo you need *tutes* delivered? (yes/no)\n\n🔙 _(Type *back* to edit)_',
+        'yesNo.invalid': '❌ Just reply with "yes" or "no" please!',
+        'address.ask': '🏠 Please type your *full home address*.\n\n🔙 _(Type *back* to edit)_',
+        'fee.prompt': '💰 *Fee:* LKR {{fee}}\n\n{{bankLabel}}\n\n📸 Please transfer the money and upload a *photo of the bank slip* here.\n\n🔙 _(Type *back* to edit)_',
+        'receipt.needMedia': '❌ Please send the bank slip as an image or PDF.',
+        'receipt.uploading': '⏳ _Uploading slip..._',
+        'receipt.uploadFail': '⚠️ Upload failed. Please send a clear JPG/PNG/PDF file again.',
+        'receipt.uploadError': '⚠️ Error processing your slip.',
+        'confirm.preview': '📋 *Check your details:*\n\nName: {{name}}\nSchool: {{school}}\nID: {{idNumber}}\nMonth: {{month}}\nGrade: {{grade}}\nTutes: {{tutes}}{{addressLine}}\n\n*Reply "yes" to submit, or type "menu" to cancel.*',
+        'submit.sending': '🚀 Submitting details...',
+        'submit.done': '✅ Done! Your details are sent for admin approval. You will be added to the WhatsApp groups soon.',
+        'confirm.reply': 'Reply "yes" to confirm, or "menu" to cancel.',
+        'oldConfirm.prompt': '👋 Welcome back, *{{name}}*!\nGrade: {{grade}}\nPhone: {{phone}}\n\n*Is this you? Reply "yes" or "no".*\n\n🔙 _(Type *back* to edit)_',
+        'oldTutes.ask': '📦 Do you need *tutes* this time? (yes/no)\n\n🔙 _(Type *back* to edit)_',
+        'oldConfirm.reply': 'Please reply with "yes" or "back".',
+        'month.invalid': '❌ Not a valid month.',
+        'oldId.notFound': '❌ ID *{{id}}* not found. Are you sure it’s correct?',
+        'oldAddress.ask': '🏠 What is your delivery address?',
+        'amount.prompt': '💰 *Amount Due:* LKR {{fee}}\n\n{{bankLabel}}\n\n📸 Please upload your bank slip here.',
+        'complain.done': '✅ Message sent to Sir/Admin. Thank you!',
+        'backMenu.title': '🔙 *EDIT MENU*\nWhere would you like to edit?\n\n{{options}}\n\n_Type the number, or *cancel* to exit._',
+        'back.new.name': '🤝 What is your *full name*?',
+        'back.new.school': '🏫 What is your *school name*?',
+        'back.new.email': '📧 What is your *email address*?',
+        'back.new.phone': '📫 What is your *WhatsApp number* to add to the group?',
+        'back.new.grade': '🎓 Which *Grade* are you in (6-11)?',
+        'back.new.month': '🗓️ Which *month* (e.g. April)?',
+        'back.new.tutes': '📦 Do you want *tutes*? (yes/no)',
+        'back.new.invalid': '❌ Invalid choice. Please type a number (1-7).',
+        'back.old.id': '🆔 Please enter your *Student ID* (e.g. 310001).',
+        'back.old.month': '🗓️ Which *month* (e.g. April)?',
+        'back.old.tutes': '📦 Do you need *tutes*? (yes/no)',
+        'back.old.invalid': '❌ Invalid choice. Please type a number (1-3).'
+    },
+    [LANG.SI]: {
+        'language.prompt': '👋 Ayubowan! Kamathi bhashawa thoranna:\n\n1️⃣ - English\n2️⃣ - Sinhala (Singlish)\n\n↩️ _(Menu ekata yanna *back* kiyala ewanna)_',
+        'language.invalid': '❌ English walata 1 ho Sinhala walata 2 kiyala ewanna.',
+        'menu.text': '*{{schoolName}}* ekata piligannawa! 🎓\n\nKaranna one de thoranna:\n\n1️⃣ - New admission\n2️⃣ - Monthly class fees\n3️⃣ - Sir ta/Admin ta message ekak danna\n4️⃣ - Bhashawa wenas karanna\n\n💡 _(Mula idan yanna onema welawaka *menu* kiyala ewanna)_',
+        'start.newAdmissionPrompt': '🤝 Api register wemu. Oyage *sampurna nama* ewanna.\n\n🔙 _(Wenas karanna *back* kiyanna | *menu* kiwwoth exit)_',
+        'start.monthlyPrompt': '🆔 Oyage *Student ID* eka ewanna (Eg: 310001).\n\n🔙 _(Wenas karanna *back* kiyanna | *menu* kiwwoth exit)_',
+        'start.complainPrompt': '📝 Sir ta kiyanna one de meke type karala ewanna.',
+        'start.cancelled': '👋 OK, session eka cancel kala!\n\nNawatha patan ganna *menu* kiyala ewanna.',
+        'start.pickMenuOption': 'Karunakara menu eken 1, 2, 3, ho 4 kiyala reply karanna.',
+        'language.changed': '✅ Bhashawa sarthakawa maaru kala!',
+        'start.cannotBackAfterReceipt': '❌ Sorry, slip eka upload kalata passe details wenas karanna baha.',
+        'name.invalid': '❌ Eka hari nama nemei wage. Sampurna nama ewanna.',
+        'school.askAfterName': 'Hi *{{name}}*! 😊\nOyage *iskole nama* mokakda?\n\n🔙 _(Wenas karanna *back* kiyanna)_',
+        'school.invalid': '❌ Karunakara walangu iskole namak ewanna.',
+        'email.ask': '📧 Hari. Oyage *email address* eka ewanna.\n\n🔙 _(Wenas karanna *back* kiyanna)_',
+        'email.invalid': '❌ Email eka waradi. Poddak check karanna.',
+        'phone.ask': '📫 Group ekata add wenna one *WhatsApp number* eka ewanna.\n\n🔙 _(Wenas karanna *back* kiyanna)_',
+        'phone.invalid': '❌ WhatsApp number eka waradi wage. Apahu try karanna.',
+        'grade.ask': '{{idLine}}🎓 Oya mona *Grade* ekeda (6-11)?\n\n🔙 _(Wenas karanna *back* kiyanna)_',
+        'month.confirmed': '✅ Hari, *{{resolved}}* maseta note kara gatta.',
+        'grade.invalid': '❌ 6 saha 11 athara grade ekak ewanna.',
+        'month.ask': '🗓️ Fees gewanne mona *masetada* (Eg: April)?\n\n🔙 _(Wenas karanna *back* kiyanna)_',
+        'month.invalidUnrecognized': '❌ Masaya waradi. Apahu ewanna.',
+        'tutes.ask': '✅ Hari, *{{resolved}}* maseta add kara.\nMe mase *tutes post karanna oneda?* (yes/no)\n\n🔙 _(Wenas karanna *back* kiyanna)_',
+        'yesNo.invalid': '❌ Karunakara "yes" ho "no" kiyala pamanak reply karanna!',
+        'address.ask': '🏠 OK, tutes post karanna one *lipinaya (home address)* eka ewanna.\n\n🔙 _(Wenas karanna *back* kiyanna)_',
+        'fee.prompt': '💰 *Class Fee:* LKR {{fee}}\n\n{{bankLabel}}\n\n📸 Salli dapu *bank slip eke photo ekak* methanata upload karanna.\n\n🔙 _(Wenas karanna *back* kiyanna)_',
+        'receipt.needMedia': '❌ Bank slip eka photo ekak hari PDF ekak hari ewanna.',
+        'receipt.uploading': '⏳ _Slip eka upload wenawa..._',
+        'receipt.uploadFail': '⚠️ Slip eka upload une naha. Pahadili photo ekak (JPG/PNG/PDF) apahu ewanna.',
+        'receipt.uploadError': '⚠️ Obage slip eka process kireeme doshayak.',
+        'confirm.preview': '📋 *Details tika hariyatada kiyala balanna:*\n\nName: {{name}}\nSchool: {{school}}\nID: {{idNumber}}\nMonth: {{month}}\nGrade: {{grade}}\nTutes: {{tutes}}{{addressLine}}\n\n*Okkoma hari nam "yes" kiyala ewanna. Mula idan danna nam "menu" kiyanna.*',
+        'submit.sending': '🚀 Details tika submit wenawa...',
+        'submit.done': '✅ Wede goda! Oyage details admin approve karanna yawala thiyenne. Ikmanatama WhatsApp group walata add karai.',
+        'confirm.reply': 'Submit karanna "yes" kiyala hari "menu" kiyala hari reply karanna.',
+        'oldConfirm.prompt': '👋 Welcome back, *{{name}}*!\nGrade: {{grade}}\nPhone: {{phone}}\n\n*Me oya neda? "yes" ho "no" kiyala ewanna.*\n\n🔙 _(Wenas karanna *back* kiyanna)_',
+        'oldTutes.ask': '📦 Me maseta *tutes* post karanna oneda? (yes/no)\n\n🔙 _(Wenas karanna *back* kiyanna)_',
+        'oldConfirm.reply': 'Karunakara "yes" ho "back" kiyala ewanna.',
+        'month.invalid': '❌ Waradi masayak.',
+        'oldId.notFound': '❌ ID *{{id}}* waradi. Apahu check karanna.',
+        'oldAddress.ask': '🏠 Tutes ewanna one address eka mokakda?',
+        'amount.prompt': '💰 *Gewanna athi mudala:* LKR {{fee}}\n\n{{bankLabel}}\n\n📸 Bank slip eka methanata upload karanna.',
+        'complain.done': '✅ Oyage msg eka admin ta yawala thiyenne. Sthuthiy!',
+        'backMenu.title': '🔙 *EDIT MENU*\nOyata wenas karanna one mokakda?\n\n{{options}}\n\n_Adhala ankaya type karanna, ho ewath wenna *cancel* kiyanna._',
+        'back.new.name': '🤝 Oyage *sampurna nama* mokakda?',
+        'back.new.school': '🏫 Oyage *iskole nama* mokakda?',
+        'back.new.email': '📧 Oyage *email address* eka ewanna.',
+        'back.new.phone': '📫 Group ekata add wenna one *WhatsApp number* eka mokakda?',
+        'back.new.grade': '🎓 Oya mona *Grade* ekeda (6-11)?',
+        'back.new.month': '🗓️ *Masaya* kumakda (Eg: April)?',
+        'back.new.tutes': '📦 *Tutes* oneda? (yes/no)',
+        'back.new.invalid': '❌ Waradi thereemaki. Menu eken 1-7 athara ankayak denna.',
+        'back.old.id': '🆔 Oyage *Student ID* eka athulath karanna (Eg: 310001).',
+        'back.old.month': '🗓️ Class fees gewanne mona *masetada* (Eg: April)?',
+        'back.old.tutes': '📦 *Tutes* oneda? (yes/no)',
+        'back.old.invalid': '❌ Waradi thereemaki. Menu eken 1-3 athara ankayak denna.'
+    }
+};
+
+function t(lang, key, vars = {}) {
+    const dict = I18N[lang] || I18N[LANG.EN];
+    const fallback = I18N[LANG.EN] || {};
+    const template = (dict && dict[key]) || fallback[key] || key;
+    return template.replace(/\{\{(\w+)\}\}/g, (_, k) => (vars[k] !== undefined ? String(vars[k]) : ''));
+}
+
+function getUserLang(from) {
+    const data = userData.get(from);
+    const lang = data && data.lang;
+    return lang === LANG.SI ? LANG.SI : LANG.EN;
+}
+
 /**
  * Formats the bank details message from environment variables.
  */
@@ -94,7 +228,10 @@ const SCOPES = [
     'https://www.googleapis.com/auth/drive',
     'https://www.googleapis.com/auth/drive.file'
 ];
-const TOKEN_PATH = 'token.json';
+// Path Configuration
+const TOKEN_PATH = path.join(__dirname, 'token.json');
+const CREDENTIALS_PATH = path.join(__dirname, 'credentials.json');
+const AUTH_DIR = path.join(__dirname, '.wwebjs_auth');
 
 // Canonical month names
 const MONTH_NAMES = [
@@ -106,6 +243,7 @@ const MONTH_NAMES = [
 
 const STATES = {
     START: 'start',
+    LANGUAGE: 'language',
     NAME: 'name',
     SCHOOL: 'school',
     EMAIL: 'email',
@@ -132,10 +270,12 @@ const registeredStudentIds = new Map();
 const pendingApprovals = new Map();
 const adminStates = new Map();
 const inboundRateBuckets = new Map();
+const userLangPref = new Map(); // Persists language choice across session resets
+
+// System Control State
 let isShuttingDown = false;
+let isSystemReady = false;
 let cachedOAuthClient = null;
-let idCounter = 0;
-let idCounterInitialized = false;
 let sessionSaveTimer = null;
 let sessionSavePending = false;
 
@@ -154,8 +294,8 @@ function resetUser(from) {
  */
 function saveSessions() {
     try {
-        if (sessionSaveTimer) return;
         sessionSavePending = true;
+        if (sessionSaveTimer) return;
         sessionSaveTimer = setTimeout(() => {
             try {
                 if (!sessionSavePending) return;
@@ -163,7 +303,8 @@ function saveSessions() {
                     userData: Array.from(userData.entries()),
                     userStates: Array.from(userStates.entries()),
                     userHistory: Array.from(userHistory.entries()),
-                    adminStates: Array.from(adminStates.entries())
+                    adminStates: Array.from(adminStates.entries()),
+                    userLangPref: Array.from(userLangPref.entries())
                 };
                 fs.writeFileSync(SESSION_FILE, JSON.stringify(data, null, 2));
             } catch (error) {
@@ -189,7 +330,8 @@ function saveSessionsNow() {
             userData: Array.from(userData.entries()),
             userStates: Array.from(userStates.entries()),
             userHistory: Array.from(userHistory.entries()),
-            adminStates: Array.from(adminStates.entries())
+            adminStates: Array.from(adminStates.entries()),
+            userLangPref: Array.from(userLangPref.entries())
         };
         fs.writeFileSync(SESSION_FILE, JSON.stringify(data, null, 2));
         sessionSavePending = false;
@@ -211,6 +353,7 @@ function loadSessions() {
         if (data.userStates) data.userStates.forEach(([k, v]) => userStates.set(k, v));
         if (data.userHistory) data.userHistory.forEach(([k, v]) => userHistory.set(k, v));
         if (data.adminStates) data.adminStates.forEach(([k, v]) => adminStates.set(k, v));
+        if (data.userLangPref) data.userLangPref.forEach(([k, v]) => userLangPref.set(k, v));
 
         if (userStates.size > 0) {
             console.log(`[Persistence] Restored ${userStates.size} active sessions.`);
@@ -370,104 +513,167 @@ function isValidPhone(phone) {
 }
 
 /**
- * Standardizes Student ID format (e.g., NEX-001).
+ * Standardizes Student ID format.
+ * Supports legacy NEX-XXX and new Batch IDs (YYXXXXX).
  */
 function normalizeStudentId(id) {
     if (!id) return '';
     const cleaned = id.trim().toUpperCase();
-    const match = cleaned.match(/^NEX(?:ORA)?[-\s]?0*(\d+)$/i);
-    if (match) {
-        return `NEX-${String(parseInt(match[1], 10)).padStart(3, '0')}`;
+
+    // Check for legacy NEX format
+    const legacyMatch = cleaned.match(/^NEX(?:ORA)?[-\s]?0*(\d+)$/i);
+    if (legacyMatch) {
+        return `NEX-${String(parseInt(legacyMatch[1], 10)).padStart(3, '0')}`;
     }
+
+    // For batch IDs (YYXXXX), strip non-digits first to handle spaces/dashes
+    const digitsOnly = cleaned.replace(/\D/g, '');
+    if (digitsOnly.length >= 6 && digitsOnly.length <= 8) return digitsOnly;
+
     return cleaned;
 }
 
-/**
- * Generates the next available Student ID.
- */
-function getNextStudentId() {
-    if (!idCounterInitialized) {
-        const ids = Array.from(registeredStudentIds.keys())
-            .map(id => {
-                const match = id.match(/^NEX(?:ORA)?[-\s]?(\d+)$/i);
-                return match ? parseInt(match[1], 10) : null;
-            })
-            .filter(Number.isFinite);
-        idCounter = ids.length ? Math.max(...ids) : 0;
-        idCounterInitialized = true;
-    }
-    idCounter += 1;
-    return `NEX-${String(idCounter).padStart(3, '0')}`;
-}
+let idGenerationQueue = Promise.resolve();
 
-function initializeStudentIdCounter() {
-    const ids = Array.from(registeredStudentIds.keys())
-        .map(id => {
-            const match = id.match(/^NEX(?:ORA)?[-\s]?(\d+)$/i);
-            return match ? parseInt(match[1], 10) : null;
-        })
-        .filter(Number.isFinite);
-    idCounter = ids.length ? Math.max(...ids) : 0;
-    idCounterInitialized = true;
+/**
+ * Generates the next available Student ID based on Batch Year.
+ * Batch Year = Current Year + (11 - Grade).
+ * Format: YYXXXX (e.g., 310001)
+ */
+async function generateBatchStudentId(grade) {
+    return new Promise((resolve, reject) => {
+        idGenerationQueue = idGenerationQueue.then(async () => {
+            try {
+                const result = await executeWithRetry(async () => {
+                    const sheets = await getSheetsClient();
+                    const drive = await getDriveClient();
+
+                    const currentYear = new Date().getFullYear();
+                    const batchYear = currentYear + (11 - parseInt(grade, 10));
+                    const batchPrefix = String(batchYear).slice(-2);
+
+                    // 1. Locate SystemData Sheet in the Spreadsheet
+                    const ss = await sheets.spreadsheets.get({ spreadsheetId: MASTER_BACKUP_SPREADSHEET_ID });
+                    let sheet = ss.data.sheets.find(s => s.properties.title === 'SystemData');
+
+                    if (!sheet) {
+                        // Create SystemData sheet if missing
+                        await sheets.spreadsheets.batchUpdate({
+                            spreadsheetId: MASTER_BACKUP_SPREADSHEET_ID,
+                            resource: { requests: [{ addSheet: { properties: { title: 'SystemData' } } }] }
+                        });
+                        await sheets.spreadsheets.values.update({
+                            spreadsheetId: MASTER_BACKUP_SPREADSHEET_ID,
+                            range: 'SystemData!A1:B1',
+                            valueInputOption: 'RAW',
+                            resource: { values: [['Batch Year', 'Last Serial']] }
+                        });
+                    }
+
+                    // 2. Fetch current serial
+                    const res = await sheets.spreadsheets.values.get({
+                        spreadsheetId: MASTER_BACKUP_SPREADSHEET_ID,
+                        range: 'SystemData!A:B'
+                    });
+                    const rows = res.data.values || [];
+                    let rowIndex = rows.findIndex(r => r[0] == batchYear);
+                    let nextSerial = 1;
+
+                    if (rowIndex >= 0) {
+                        nextSerial = parseInt(rows[rowIndex][1], 10) + 1;
+                        await sheets.spreadsheets.values.update({
+                            spreadsheetId: MASTER_BACKUP_SPREADSHEET_ID,
+                            range: `SystemData!B${rowIndex + 1}`,
+                            valueInputOption: 'RAW',
+                            resource: { values: [[nextSerial]] }
+                        });
+                    } else {
+                        rowIndex = rows.length;
+                        await sheets.spreadsheets.values.append({
+                            spreadsheetId: MASTER_BACKUP_SPREADSHEET_ID,
+                            range: 'SystemData!A:B',
+                            valueInputOption: 'RAW',
+                            resource: { values: [[batchYear, nextSerial]] }
+                        });
+                    }
+
+                    return `${batchPrefix}${String(nextSerial).padStart(4, '0')}`;
+                });
+                resolve(result);
+            } catch (error) {
+                console.error('[ID Gen] CRITICAL ERROR generating batch ID:', error.message);
+                reject(error);
+            }
+        }).catch(err => {
+            // This catch prevents a failed ID generation from completely rejecting the `idGenerationQueue` promise chain itself.
+            // By catching it here, the queue stays open for the NEXT user, preventing the "Poison Pill" bug.
+            console.warn('[Queue Recoved] ID Generation Queue recovered from an isolated failure.');
+        });
+    });
 }
 
 
 // --- 4. GOOGLE API OPERATIONS (Auth, Drive, Sheets) ---
 
 /**
- * Google OAuth 2.0 Client setup.
+ * Google OAuth 2.0 Client setup with auto-refresh persistence.
  */
 async function getOAuthClient() {
     if (cachedOAuthClient) return cachedOAuthClient;
-    const content = fs.readFileSync('credentials.json');
-    let credentials;
-    try {
-        credentials = JSON.parse(content);
-    } catch (e) {
-        console.error('Error loading credentials.json: ', e);
-        throw e;
+
+    if (!fs.existsSync(CREDENTIALS_PATH)) {
+        throw new Error(`CRITICAL: credentials.json missing at ${CREDENTIALS_PATH}. Please upload your Google Cloud credentials.`);
     }
 
+    const content = fs.readFileSync(CREDENTIALS_PATH);
+    const credentials = JSON.parse(content);
     const key = credentials.installed || credentials.web;
+
     if (!key) {
-        throw new Error('Invalid credentials.json format. Ensure you downloaded OAuth 2.0 Client IDs, not Service Account keys.');
+        throw new Error('Invalid credentials.json format. Ensure you are using OAuth 2.0 Client IDs.');
     }
+
     const redirectUri = (key.redirect_uris && key.redirect_uris.length > 0) ? key.redirect_uris[0] : 'urn:ietf:wg:oauth:2.0:oob';
     const oAuth2Client = new google.auth.OAuth2(key.client_id, key.client_secret, redirectUri);
 
+    // Event listener to automatically save and persist refreshed tokens
+    oAuth2Client.on('tokens', (tokens) => {
+        try {
+            console.log('[Google Auth] Token Refreshed. Updating token.json...');
+            let existingToken = {};
+            if (fs.existsSync(TOKEN_PATH)) {
+                existingToken = JSON.parse(fs.readFileSync(TOKEN_PATH));
+            }
+            // Merge new tokens into existing to preserve refresh_token if it's not provided in the refresh event
+            const updatedToken = { ...existingToken, ...tokens };
+            fs.writeFileSync(TOKEN_PATH, JSON.stringify(updatedToken, null, 2));
+        } catch (err) {
+            console.error('[Google Auth] Failed to save refreshed token:', err.message);
+        }
+    });
+
+    if (!fs.existsSync(TOKEN_PATH)) {
+        console.error(`\n❌ ERROR: token.json NOT FOUND at ${TOKEN_PATH}`);
+        console.error('Production servers cannot use interactive auth.');
+        console.error('Please run "node generate_token.js" on your local machine and upload the resulting token.json to the server.\n');
+        throw new Error('Authentication required but token.json is missing.');
+    }
+
     try {
-        const token = fs.readFileSync(TOKEN_PATH);
-        oAuth2Client.setCredentials(JSON.parse(token));
+        const token = JSON.parse(fs.readFileSync(TOKEN_PATH));
+        oAuth2Client.setCredentials(token);
+
+        // Check if token is potentially expired and trigger a silent refresh check
+        if (token.expiry_date && Date.now() >= token.expiry_date) {
+            console.log('[Google Auth] Stored token appears expired. Preparing refresh...');
+        }
+
         cachedOAuthClient = oAuth2Client;
         return cachedOAuthClient;
     } catch (err) {
-        cachedOAuthClient = await getNewToken(oAuth2Client);
-        return cachedOAuthClient;
+        console.error('[Google Auth] Error loading token.json:', err.message);
+        throw err;
     }
-}
-
-/**
- * Handles generating a new OAuth token if it doesn't exist.
- */
-function getNewToken(oAuth2Client) {
-    return new Promise((resolve, reject) => {
-        const authUrl = oAuth2Client.generateAuthUrl({ access_type: 'offline', scope: SCOPES });
-        console.log('\n=============================================\nAUTHORIZATION REQUIRED\nAuthorize this app by visiting this url:\n' + authUrl + '\n=============================================\n');
-
-        const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-        rl.question('Enter the code from that page here: ', (code) => {
-            rl.close();
-            oAuth2Client.getToken(code, (err, token) => {
-                if (err) {
-                    console.error('Error while trying to retrieve access token:', err.message);
-                    return reject(err);
-                }
-                oAuth2Client.setCredentials(token);
-                fs.writeFileSync(TOKEN_PATH, JSON.stringify(token));
-                resolve(oAuth2Client);
-            });
-        });
-    });
 }
 
 const getSheetsClient = async () => google.sheets({ version: 'v4', auth: await getOAuthClient() });
@@ -478,7 +684,15 @@ const getDriveClient = async () => google.drive({ version: 'v3', auth: await get
  */
 async function uploadReceiptToDrive(media, studentId, studentName) {
     try {
+        if (!media || !media.data) {
+            throw new Error('Invalid media data provided for upload.');
+        }
+
         const drive = await getDriveClient();
+        if (!drive) {
+            throw new Error('Failed to initialize Google Drive client.');
+        }
+
         const buffer = Buffer.from(media.data, 'base64');
         const stream = new Readable();
         stream.push(buffer);
@@ -488,39 +702,53 @@ async function uploadReceiptToDrive(media, studentId, studentName) {
         if (media.mimetype.includes('pdf')) ext = '.pdf';
         else if (media.mimetype.includes('jpeg') || media.mimetype.includes('jpg')) ext = '.jpg';
         else if (media.mimetype.includes('png')) ext = '.png';
-        else throw new Error('Unsupported media type. Please upload JPG, PNG, or PDF.');
+        else {
+            console.warn(`[Drive] Unrecognized mimetype: ${media.mimetype}. Defaulting to .jpg`);
+            ext = '.jpg';
+        }
 
+        const fileName = `Receipt_${studentId}_${studentName.replace(/[^a-zA-Z0-9]/g, '_')}${ext}`;
         const fileMetadata = {
-            name: `Receipt_${studentId}_${studentName.replace(/[^a-zA-Z0-9]/g, '_')}${ext}`,
+            name: fileName,
             parents: [DRIVE_FOLDER_ID]
         };
 
+        console.log(`[Drive] Starting upload for ${fileName}...`);
         const file = await drive.files.create({
             resource: fileMetadata,
             media: { mimeType: media.mimetype, body: stream },
             fields: 'id, webViewLink'
         });
 
+        if (!file.data || !file.data.id) {
+            throw new Error('Drive API returned empty response after upload.');
+        }
+
+        console.log(`[Drive] Upload successful: ${file.data.id}`);
+
         await drive.permissions.create({
             fileId: file.data.id,
             requestBody: { role: 'reader', type: 'anyone' }
-        }).catch(e => console.warn('Public perm failed:', e.message));
+        }).catch(e => console.warn('[Drive] Public permission setup failed:', e.message));
 
         return file.data.webViewLink;
     } catch (error) {
-        console.error('Drive upload failed:', error.message);
+        console.error('[Drive] Upload Error Detail:', error.message);
+        if (error.response) {
+            console.error('[Drive] Status:', error.response.status, 'Body:', error.response.data);
+        }
         return null;
     }
 }
 
 /**
- * Ensures Master Backup spreadsheet has current headers.
+ * Ensures a specific sheet in a spreadsheet has current headers.
  */
-async function ensureSpreadsheetHeaders(sheets, spreadsheetId) {
+async function ensureSpreadsheetHeaders(sheets, spreadsheetId, sheetTitle = 'Sheet1') {
     try {
         const headerResponse = await sheets.spreadsheets.values.get({
             spreadsheetId,
-            range: 'Sheet1!A1:L1',
+            range: `${sheetTitle}!A1:L1`,
         });
         const headerRow = (headerResponse.data.values || [])[0] || [];
         const needsHeaderFix = !headerRow[0]
@@ -530,14 +758,30 @@ async function ensureSpreadsheetHeaders(sheets, spreadsheetId) {
         if (needsHeaderFix) {
             await sheets.spreadsheets.values.update({
                 spreadsheetId,
-                range: 'Sheet1!A1:L1',
+                range: `${sheetTitle}!A1:L1`,
                 valueInputOption: 'RAW',
                 resource: { values: [STUDENT_HEADERS] }
             });
         }
     } catch (e) {
-        console.error(`Error ensuring headers for sheet ${spreadsheetId}:`, e.message);
+        console.error(`Error ensuring headers for sheet ${spreadsheetId} (${sheetTitle}):`, e.message);
     }
+}
+
+/**
+ * Utility to get or create a sheet (tab) in a spreadsheet.
+ */
+async function getOrCreateSheet(sheets, spreadsheetId, sheetTitle) {
+    const ss = await sheets.spreadsheets.get({ spreadsheetId });
+    const sheet = ss.data.sheets.find(s => s.properties.title === sheetTitle);
+    if (!sheet) {
+        await sheets.spreadsheets.batchUpdate({
+            spreadsheetId,
+            resource: { requests: [{ addSheet: { properties: { title: sheetTitle } } }] }
+        });
+        await ensureSpreadsheetHeaders(sheets, spreadsheetId, sheetTitle);
+    }
+    return sheetTitle;
 }
 
 /**
@@ -546,63 +790,94 @@ async function ensureSpreadsheetHeaders(sheets, spreadsheetId) {
 async function loadStudentsFromSheets() {
     try {
         const sheets = await getSheetsClient();
-        await ensureSpreadsheetHeaders(sheets, MASTER_BACKUP_SPREADSHEET_ID);
 
-        const response = await sheets.spreadsheets.values.get({
-            spreadsheetId: MASTER_BACKUP_SPREADSHEET_ID,
-            range: RANGE,
-        });
+        // 1. Get all sheets in the Master Backup
+        const ss = await sheets.spreadsheets.get({ spreadsheetId: MASTER_BACKUP_SPREADSHEET_ID });
+        const batchSheets = ss.data.sheets
+            .map(s => s.properties.title)
+            .filter(t => t.startsWith('Batch ') || t === 'Sheet1');
 
-        const rows = response.data.values || [];
-        if (rows.length > 1) {
-            for (let i = 1; i < rows.length; i++) {
-                const row = rows[i];
-                const hasSchoolColumn = row.length >= 12;
-                const id = row[0];
-                const name = row[1];
-                const school = hasSchoolColumn ? (row[2] || '') : '';
-                const grade = hasSchoolColumn ? row[3] : row[2];
-                const months = hasSchoolColumn ? row[4] : row[3];
-                const phone = hasSchoolColumn ? row[5] : row[4];
-                const email = hasSchoolColumn ? row[6] : row[5];
-                const wantsTutes = hasSchoolColumn ? row[7] : row[6];
-                const address = hasSchoolColumn ? row[8] : row[7];
-                const status = hasSchoolColumn ? row[9] : row[8];
-                const receiptUrl = hasSchoolColumn ? row[10] : row[9];
-                const groupId = hasSchoolColumn ? row[11] : row[10];
-                if (!id) continue;
-                const normalizedId = normalizeStudentId(id);
-                const studentObj = {
-                    idNumber: normalizedId,
-                    name,
-                    school,
-                    grade: parseInt(grade),
-                    months,
-                    phone,
-                    contactId: phone ? (phone.includes('@') ? phone : `${phone.replace(/\D/g, '')}@c.us`) : null,
-                    email,
-                    wantsTutes: wantsTutes === 'Yes',
-                    address: address || null,
-                    status: status || 'Pending',
-                    receiptUrl: receiptUrl || null,
-                    groupId: groupId || null,
-                    fee: wantsTutes === 'Yes' ? 2500 : 1500
-                };
-                registeredStudentIds.set(normalizedId, studentObj);
+        for (const sheetTitle of batchSheets) {
+            await ensureSpreadsheetHeaders(sheets, MASTER_BACKUP_SPREADSHEET_ID, sheetTitle);
 
-                // Sync pending approvals for admin recovery
-                if (studentObj.status === 'Pending') {
-                    pendingApprovals.set(normalizedId, studentObj);
+            const response = await sheets.spreadsheets.values.get({
+                spreadsheetId: MASTER_BACKUP_SPREADSHEET_ID,
+                range: `${sheetTitle}!A:L`,
+            });
+
+            const rows = response.data.values || [];
+            if (rows.length > 1) {
+                const headers = rows[0].map(h => h.trim().toLowerCase());
+
+                // Flexible index detection
+                const findIndex = (search) => headers.findIndex(h => h.includes(search.toLowerCase()));
+
+                const idIdx = findIndex('Student ID');
+                const nameIdx = findIndex('Name');
+                const schoolIdx = findIndex('School');
+                const gradeIdx = findIndex('Grade');
+                const monthIdx = findIndex('Month');
+                const phoneIdx = findIndex('Phone');
+                const emailIdx = findIndex('Email');
+                const tutesIdx = findIndex('Tutes');
+                const addrIdx = findIndex('Address');
+                const statusIdx = findIndex('Status');
+                const receiptIdx = findIndex('Receipt');
+                const groupIdx = findIndex('Group');
+
+                for (let i = 1; i < rows.length; i++) {
+                    const row = rows[i];
+                    const id = idIdx >= 0 ? row[idIdx] : row[0];
+                    if (!id) continue;
+
+                    const normalizedId = normalizeStudentId(id);
+                    const studentObj = {
+                        idNumber: normalizedId,
+                        name: nameIdx >= 0 ? (row[nameIdx] || '') : (row[1] || ''),
+                        school: schoolIdx >= 0 ? (row[schoolIdx] || '') : '',
+                        grade: gradeIdx >= 0 ? parseInt(row[gradeIdx], 10) : NaN,
+                        months: monthIdx >= 0 ? (row[monthIdx] || '') : '',
+                        phone: phoneIdx >= 0 ? (row[phoneIdx] || '') : '',
+                        email: emailIdx >= 0 ? (row[emailIdx] || '') : '',
+                        wantsTutes: tutesIdx >= 0 ? row[tutesIdx] === 'Yes' : false,
+                        address: addrIdx >= 0 ? (row[addrIdx] || null) : null,
+                        status: statusIdx >= 0 ? (row[statusIdx] || 'Pending') : 'Pending',
+                        receiptUrl: receiptIdx >= 0 ? (row[receiptIdx] || null) : null,
+                        groupId: groupIdx >= 0 ? (row[groupIdx] || null) : null
+                    };
+
+                    // Handle legacy data fallback if headers didn't match perfectly
+                    if (isNaN(studentObj.grade)) {
+                        const hasSchool = row.length >= 12;
+                        studentObj.school = hasSchool ? (row[2] || '') : '';
+                        studentObj.grade = parseInt(hasSchool ? row[3] : row[2], 10);
+                        studentObj.months = hasSchool ? row[4] : row[3];
+                        studentObj.phone = hasSchool ? row[5] : row[4];
+                        studentObj.email = hasSchool ? row[6] : row[5];
+                        studentObj.wantsTutes = (hasSchool ? row[7] : row[6]) === 'Yes';
+                    }
+
+                    // Derived fields
+                    studentObj.contactId = studentObj.phone ? (studentObj.phone.includes('@') ? studentObj.phone : `${studentObj.phone.replace(/\D/g, '')}@c.us`) : null;
+                    studentObj.fee = studentObj.wantsTutes ? 2500 : 1500;
+
+                    registeredStudentIds.set(normalizedId, studentObj);
+
+                    // Sync pending approvals for admin recovery
+                    if (studentObj.status === 'Pending') {
+                        pendingApprovals.set(normalizedId, studentObj);
+                    }
                 }
             }
         }
-        initializeStudentIdCounter();
+        // Sync pending approvals for admin recovery
         if (pendingApprovals.size > 0) {
             console.log(`[Sync] Recovered ${pendingApprovals.size} pending approvals from Google Sheets.`);
         }
-        console.log(`Loaded ${registeredStudentIds.size} students from Master Backup.`);
+        console.log(`[Sync] ✅ Loaded ${registeredStudentIds.size} students from Master Backup.`);
     } catch (error) {
-        console.error('Error loading from Sheets:', error.message);
+        console.error('[Sync] ❌ CRITICAL: Error loading from Sheets:', error.message);
+        throw error; // Rethrow to enforce the Fail-Safe mechanism in the ready event
     }
 }
 
@@ -615,9 +890,9 @@ async function upsertStudentData(studentData, forceStatus = null, oldGrade = nul
         const drive = await getDriveClient();
 
         // 0. Optional Cleanup: If grade/month changed, remove from old location first
-        if (oldGrade || oldMonth) {
-            const lastGrade = oldGrade || studentData.grade;
-            const lastMonth = oldMonth || studentData.months;
+        if (oldGrade !== null || oldMonth !== null) {
+            const lastGrade = oldGrade !== null ? oldGrade : studentData.grade;
+            const lastMonth = oldMonth !== null ? oldMonth : studentData.months;
             if (parseInt(lastGrade) !== parseInt(studentData.grade) || lastMonth !== studentData.months) {
                 await deleteStudentFromMonthlyFile(sheets, drive, lastGrade, lastMonth, studentData.idNumber);
             }
@@ -642,22 +917,26 @@ async function upsertStudentData(studentData, forceStatus = null, oldGrade = nul
             studentData.groupId || ''
         ]];
 
-        // 1. Update Master
-        const masterRes = await sheets.spreadsheets.values.get({ spreadsheetId: MASTER_BACKUP_SPREADSHEET_ID, range: 'Sheet1!A:L' });
+        // 1. Update Master (Batch-specific tab)
+        const batchYear = new Date().getFullYear() + (11 - parseInt(studentData.grade, 10));
+        const batchSheetName = `Batch ${batchYear}`;
+        await getOrCreateSheet(sheets, MASTER_BACKUP_SPREADSHEET_ID, batchSheetName);
+
+        const masterRes = await sheets.spreadsheets.values.get({ spreadsheetId: MASTER_BACKUP_SPREADSHEET_ID, range: `${batchSheetName}!A:L` });
         const masterRows = masterRes.data.values || [];
         const mIndex = masterRows.findIndex(r => normalizeStudentId(r[0]) === studentData.idNumber);
 
         if (mIndex >= 0) {
             await sheets.spreadsheets.values.update({
                 spreadsheetId: MASTER_BACKUP_SPREADSHEET_ID,
-                range: `Sheet1!A${mIndex + 1}:L${mIndex + 1}`,
+                range: `${batchSheetName}!A${mIndex + 1}:L${mIndex + 1}`,
                 valueInputOption: 'RAW',
                 resource: { values: rowValues }
             });
         } else {
             await sheets.spreadsheets.values.append({
                 spreadsheetId: MASTER_BACKUP_SPREADSHEET_ID,
-                range: 'Sheet1!A:L',
+                range: `${batchSheetName}!A:L`,
                 valueInputOption: 'RAW',
                 resource: { values: rowValues }
             });
@@ -898,8 +1177,17 @@ async function sendWA(to, text, options = {}) {
  * Sends the main welcome menu.
  */
 async function sendMainMenu(from) {
-    const text = `Welcome to *${SCHOOL_NAME}*! 🎓\n\nPlease choose an option by typing the number:\n\n1️⃣ - New admission\n2️⃣ - Monthly registration\n3️⃣ - Complain\n\n💡 _Type *menu* anytime to return here._`;
+    const lang = getUserLang(from);
+    const text = t(lang, 'menu.text', { schoolName: SCHOOL_NAME });
     return await sendWA(from, text);
+}
+
+function startLanguageSelectionSession(from, existingData = {}) {
+    const preserved = {};
+    if (existingData.contactId) preserved.contactId = existingData.contactId;
+    userHistory.delete(from);
+    userStates.set(from, STATES.LANGUAGE);
+    userData.set(from, { ...preserved, lastSeen: Date.now() });
 }
 
 /**
@@ -926,8 +1214,27 @@ async function addStudentToGroup(groupId, contactId) {
 // --- 6. BOT EVENT HANDLERS (QR, Ready, Message) ---
 
 const client = new Client({
-    authStrategy: new LocalAuth({ clientId: 'BOT_SESSION', dataPath: path.join(__dirname, '.wwebjs_auth') }),
-    puppeteer: { headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] }
+    authStrategy: new LocalAuth({
+        clientId: 'BOT_SESSION',
+        dataPath: AUTH_DIR
+    }),
+    webVersionCache: {
+        type: 'remote',
+        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html',
+    },
+    puppeteer: {
+        headless: true,
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--single-process',
+            '--disable-gpu'
+        ]
+    }
 });
 
 client.on('qr', (qr) => {
@@ -936,9 +1243,21 @@ client.on('qr', (qr) => {
 });
 
 client.on('ready', async () => {
-    console.log('Nexora Science Class Bot is ready!');
+    console.log('[System] WhatsApp Client Ready! Booting up memory subsystems...');
     loadSessions();
-    await loadStudentsFromSheets();
+    try {
+        await executeWithRetry(async () => {
+            await loadStudentsFromSheets();
+        }, 5, 5000); // Try 5 times with 5-second delays if network is shaky during boot
+
+        isSystemReady = true;
+        console.log('[System] ✅ Bot is FULLY INITIALIZED and ready to process messages.');
+    } catch (error) {
+        console.error('\n❌ FATAL STARTUP ERROR: Could not sync with Google Sheets after multiple attempts.');
+        console.error('Refusing to process WhatsApp messages with an empty or corrupt memory state.');
+        console.error('Exiting process to allow PM2 to restart and try again later.\n');
+        process.exit(1);
+    }
 });
 
 /**
@@ -948,16 +1267,17 @@ client.on('ready', async () => {
 async function isUserAdmin(msg) {
     const from = msg.from;
 
-    // 1. Direct Match (JID or LID)
-    if (ADMIN_NUMBERS.includes(from)) return true;
-
-    // 2. Resolve Contact and check Phone Number
+    // 1. Resolve Contact and check Phone Number first (most reliable for LID mismatch)
     try {
         const contact = await msg.getContact();
         if (contact && contact.number) {
             const phoneJid = `${contact.number}@c.us`;
             if (ADMIN_NUMBERS.includes(phoneJid)) {
-                console.log(`[Admin Mapping] Recognized ${from} as Admin via phone: ${phoneJid}`);
+                // If the direct 'from' was an LID, it won't match ADMIN_NUMBERS[0] checks later
+                // Update msg.from locally for this message processing if it's the master admin
+                if (phoneJid === ADMIN_NUMBERS[0]) {
+                    msg._resolvedMaster = true;
+                }
                 return true;
             }
         }
@@ -965,11 +1285,17 @@ async function isUserAdmin(msg) {
         console.warn(`[Admin Check] Failed to resolve contact for ${from}:`, e.message);
     }
 
+    // 2. Direct Match (JID or LID)
+    if (ADMIN_NUMBERS.includes(from)) {
+        if (from === ADMIN_NUMBERS[0]) msg._resolvedMaster = true;
+        return true;
+    }
+
     return false;
 }
 
 client.on('message', async msg => {
-    if (isShuttingDown) return;
+    if (isShuttingDown || !isSystemReady) return;
     if (msg.fromMe) return;
     const from = msg.from;
     // Hard-stop non-1:1 chats (groups, status/broadcast, channels)
@@ -1093,7 +1419,8 @@ client.on('message', async msg => {
                         return await sendWA(from, `✅ Added *${newId}* as admin.`);
                     }
                     if (action === 'remove') {
-                        if (from !== ADMIN_NUMBERS[0]) return await sendWA(from, '🚫 Only the Master Admin can remove admins.');
+                        const isMaster = msg._resolvedMaster || from === ADMIN_NUMBERS[0];
+                        if (!isMaster) return await sendWA(from, '🚫 Only the Master Admin can remove admins.');
                         if (!ADMIN_NUMBERS.includes(newId)) return await sendWA(from, '❌ This ID is not an admin.');
 
                         const updatedArray = ADMIN_NUMBERS.filter(id => id !== newId);
@@ -1237,6 +1564,9 @@ client.on('message', async msg => {
 
                 try {
                     const chat = await client.getChatById(student.groupId);
+                    const me = chat.participants.find(p => p.id._serialized === client.info.me._serialized || p.id.user === client.info.wid.user);
+                    if (!me || !me.isAdmin) return await sendWA(from, "❌ Action failed: I am not an admin in that group.");
+
                     await chat.removeParticipants([student.contactId]);
 
                     // Notify the student
@@ -1252,7 +1582,8 @@ client.on('message', async msg => {
 
             // Command: Delete Student
             if (lowerBody.startsWith('delete student ')) {
-                if (from !== ADMIN_NUMBERS[0]) return await sendWA(from, '🚫 Only Master Admin can delete.');
+                const isMaster = msg._resolvedMaster || from === ADMIN_NUMBERS[0];
+                if (!isMaster) return await sendWA(from, '🚫 Only Master Admin can delete.');
                 const studentId = normalizeStudentId(body.substring(15));
                 const student = registeredStudentIds.get(studentId);
                 if (!student) return await sendWA(from, '❌ Student not found.');
@@ -1328,14 +1659,16 @@ client.on('message', async msg => {
 
         // Global Keywords
         if (lowerBody === MENU_KEYWORD) {
-            resetUser(from);
-            userStates.set(from, STATES.START);
-            userData.set(from, { lastSeen: Date.now() });
-            return await sendMainMenu(from);
+            const previous = userData.get(from) || {};
+            startLanguageSelectionSession(from, previous);
+            return await sendWA(from, t(LANG.EN, 'language.prompt'));
         }
         if (lowerBody === 'cancel') {
-            resetUser(from);
-            return await sendWA(from, '👋 Registration cancelled. Type *menu* to start again.');
+            const previous = userData.get(from) || {};
+            const lang = getUserLang(from);
+            startLanguageSelectionSession(from, previous);
+            const cancelMsg = `${t(lang, 'start.cancelled')}\n\n${t(LANG.EN, 'language.prompt')}`;
+            return await sendWA(from, cancelMsg);
         }
 
         // Session Initialization
@@ -1344,19 +1677,34 @@ client.on('message', async msg => {
             if (from.includes('@lid')) {
                 try { const contact = await msg.getContact(); contactId = contact.id._serialized; } catch (e) { }
             }
-            userStates.set(from, STATES.START);
-            userData.set(from, { contactId, lastSeen: Date.now() });
+            const savedLang = userLangPref.get(from);
+            if (savedLang) {
+                // Returning user — skip language selection, go straight to menu
+                userHistory.delete(from);
+                userStates.set(from, STATES.START);
+                userData.set(from, { contactId, lang: savedLang, lastSeen: Date.now() });
+                return await sendMainMenu(from);
+            }
+            startLanguageSelectionSession(from, { contactId });
+            return await sendWA(from, t(LANG.EN, 'language.prompt'));
         }
 
         const state = userStates.get(from);
         const data = userData.get(from);
         data.lastSeen = Date.now();
 
+        if (!data.lang && state !== STATES.LANGUAGE) {
+            userStates.set(from, STATES.LANGUAGE);
+            return await sendWA(from, t(LANG.EN, 'language.prompt'));
+        }
+
         // Command: Back
         if (lowerBody === 'back') {
-            if (state === STATES.CONFIRM) return await sendWA(from, '❌ Cannot go back after receipt upload.');
+            const currentState = userStates.get(from);
+            if (currentState === STATES.CONFIRM) return await sendWA(from, t(getUserLang(from), 'start.cannotBackAfterReceipt'));
 
             let options = [];
+            let stageCount = 0;
             if (data.isNewStudent) {
                 options = [
                     '1. Name',
@@ -1367,131 +1715,220 @@ client.on('message', async msg => {
                     '6. Month',
                     '7. Tute Choice'
                 ];
+                if (currentState === STATES.SCHOOL) stageCount = 1;
+                else if (currentState === STATES.EMAIL) stageCount = 2;
+                else if (currentState === STATES.PHONE) stageCount = 3;
+                else if (currentState === STATES.GRADE) stageCount = 4;
+                else if (currentState === STATES.MONTHS) stageCount = 5;
+                else if (currentState === STATES.TUTES_OPTION) stageCount = 6;
+                else if ([STATES.ADDRESS, STATES.RECEIPT].includes(currentState)) stageCount = 7;
             } else {
                 options = [
                     '1. Student ID',
-                    '2. Month',
-                    '3. Tute Choice'
+                    '2. Tute Choice',
+                    '3. Month'
                 ];
+                if ([STATES.OLD_CONFIRM, STATES.OLD_TUTES_OPTION].includes(currentState)) stageCount = 1;
+                else if (currentState === STATES.OLD_MONTH) stageCount = 2;
+                else if (currentState === STATES.RECEIPT) stageCount = 3;
             }
 
+            const filteredOptions = options.slice(0, stageCount);
+            if (filteredOptions.length === 0) return await sendMainMenu(from);
+
+            data.maxBackStage = stageCount; // Security: store max allowed choice
             userStates.set(from, STATES.BACK_MENU);
-            return await sendWA(from, `🔙 *EDIT MENU*\nWhere would you like to go back to?\n\n${options.join('\n')}\n\n_Type the number to jump, or *cancel* to exit._`);
+            return await sendWA(from, t(getUserLang(from), 'backMenu.title', { options: filteredOptions.join('\n') }));
         }
 
         // --- State Machine ---
         switch (state) {
+            case STATES.LANGUAGE: {
+                const normalized = lowerBody.replace(/\s+/g, '');
+                if (lowerBody === 'back') {
+                    if (data.lang) {
+                        userStates.set(from, STATES.START);
+                        return await sendMainMenu(from);
+                    }
+                    return await sendWA(from, t(LANG.EN, 'language.prompt'));
+                }
+                const pickedEn = body === '1' || normalized === 'english' || normalized === 'en';
+                const pickedSi = body === '2' || normalized === 'sinhala' || normalized === 'singlish' || normalized === 'සිංහල' || normalized === 'si';
+                if (!pickedEn && !pickedSi) return await sendWA(from, t(LANG.EN, 'language.invalid'));
+
+                const hadPreviousLanguage = !!data.lang;
+                data.lang = pickedSi ? LANG.SI : LANG.EN;
+                userLangPref.set(from, data.lang); // Remember for future sessions
+                userStates.set(from, STATES.START);
+                if (hadPreviousLanguage) {
+                    await sendWA(from, t(data.lang, 'language.changed'));
+                }
+                return await sendMainMenu(from);
+            }
+
             case STATES.START:
                 if (body === '1' || lowerBody.includes('admission')) {
                     pushHistory(from, state, data);
                     data.isNewStudent = true;
                     userStates.set(from, STATES.NAME);
-                    return await sendWA(from, '🤝 Welcome! Please enter your *full name* to start.\n\n🔙 _Type *back* to edit details | *menu* to exit_');
+                    return await sendWA(from, t(getUserLang(from), 'start.newAdmissionPrompt'));
                 }
                 if (body === '2' || lowerBody.includes('monthly')) {
                     pushHistory(from, state, data);
+                    data.isNewStudent = false;
                     userStates.set(from, STATES.OLD_ID);
-                    return await sendWA(from, '🆔 Please enter your *Student ID* (e.g. NEX-001).\n\n🔙 _Type *back* to edit details | *menu* to exit_');
+                    return await sendWA(from, t(getUserLang(from), 'start.monthlyPrompt'));
                 }
                 if (body === '3' || lowerBody.includes('complain')) {
                     pushHistory(from, state, data);
                     userStates.set(from, STATES.COMPLAIN);
-                    return await sendWA(from, '📝 Type your complaint for the admin.');
+                    return await sendWA(from, t(getUserLang(from), 'start.complainPrompt'));
                 }
+                if (body === '4' || lowerBody.includes('language')) {
+                    userStates.set(from, STATES.LANGUAGE);
+                    return await sendWA(from, t(getUserLang(from), 'language.prompt'));
+                }
+                await sendWA(from, t(getUserLang(from), 'start.pickMenuOption'));
                 return await sendMainMenu(from);
 
             case STATES.NAME:
-                if (body.length < 3) return await sendWA(from, '❌ Please enter a valid full name.');
+                if (body.length < 3) return await sendWA(from, t(getUserLang(from), 'name.invalid'));
                 pushHistory(from, state, data);
                 data.name = body;
                 userStates.set(from, STATES.SCHOOL);
-                return await sendWA(from, `Nice to meet you, *${body}*!\nWhat is your *school name*?\n\n🔙 _Type *back* to edit details_`);
+                return await sendWA(from, t(getUserLang(from), 'school.askAfterName', { name: body }));
 
             case STATES.SCHOOL:
-                if (body.length < 2) return await sendWA(from, '❌ Please enter a valid school name.');
+                if (body.length < 2) return await sendWA(from, t(getUserLang(from), 'school.invalid'));
                 pushHistory(from, state, data);
                 data.school = body;
                 userStates.set(from, STATES.EMAIL);
-                return await sendWA(from, '📧 Great. What is your *email address*?\n\n🔙 _Type *back* to edit details_');
+                return await sendWA(from, t(getUserLang(from), 'email.ask'));
 
             case STATES.EMAIL:
-                if (!isValidEmail(body)) return await sendWA(from, '❌ Invalid email.');
+                if (!isValidEmail(body)) return await sendWA(from, t(getUserLang(from), 'email.invalid'));
                 pushHistory(from, state, data);
                 data.email = body;
                 userStates.set(from, STATES.PHONE);
-                return await sendWA(from, '📫 Got it. Now, your *phone number*?\n\n🔙 _Type *back* to edit details_');
+                return await sendWA(from, t(getUserLang(from), 'phone.ask'));
 
             case STATES.PHONE:
-                if (!isValidPhone(body)) return await sendWA(from, '❌ Invalid phone.');
+                if (!isValidPhone(body)) return await sendWA(from, t(getUserLang(from), 'phone.invalid'));
                 pushHistory(from, state, data);
                 data.phone = cleanPhoneNumber(body);
-                data.idNumber = getNextStudentId();
                 userStates.set(from, STATES.GRADE);
-                return await sendWA(from, `Your ID: *${data.idNumber}*\nGrade (6-11)?\n\n🔙 _Type *back* to edit details_`);
+                return await sendWA(from, t(getUserLang(from), 'grade.ask', { idLine: '' }));
 
             case STATES.GRADE: {
                 const grade = parseInt(body, 10);
-                if (isNaN(grade) || grade < 6 || grade > 11) return await sendWA(from, '❌ Grades 6-11 only.');
+                if (isNaN(grade) || grade < 6 || grade > 11) return await sendWA(from, t(getUserLang(from), 'grade.invalid'));
                 pushHistory(from, state, data);
                 data.grade = grade;
                 userStates.set(from, STATES.MONTHS);
-                return await sendWA(from, '🗓️ Month (e.g. April)?\n\n🔙 _Type *back* to edit details_');
+                return await sendWA(from, t(getUserLang(from), 'month.ask'));
             }
 
             case STATES.MONTHS: {
                 const resolved = resolveMonthInput(body);
-                if (!resolved) return await sendWA(from, `❌ Could not recognize month.`);
+                if (!resolved) return await sendWA(from, t(getUserLang(from), 'month.invalidUnrecognized'));
                 pushHistory(from, state, data);
                 data.months = resolved;
                 userStates.set(from, STATES.TUTES_OPTION);
-                return await sendWA(from, `✅ Registered for *${resolved}*.\nInclude *tutes* (yes/no)?\n\n🔙 _Type *back* to edit details_`);
+                return await sendWA(from, t(getUserLang(from), 'tutes.ask', { resolved }));
             }
 
             case STATES.TUTES_OPTION: {
-                if (!['yes', 'no'].includes(lowerBody)) return await sendWA(from, '❌ Please reply with "yes" or "no".');
+                if (!['yes', 'no'].includes(lowerBody)) return await sendWA(from, t(getUserLang(from), 'yesNo.invalid'));
                 const wantsT = lowerBody === 'yes';
                 pushHistory(from, state, data);
                 data.wantsTutes = wantsT;
                 if (wantsT) {
                     userStates.set(from, STATES.ADDRESS);
-                    return await sendWA(from, '🏠 Enter your *full shipping address*.\n\n🔙 _Type *back* to edit details_');
+                    return await sendWA(from, t(getUserLang(from), 'address.ask'));
                 } else {
                     data.fee = 1500;
                     userStates.set(from, STATES.RECEIPT);
-                    return await sendWA(from, `💰 *Fee:* LKR 1500\n\n${getBankLabel()}\n\n📸 Upload *receipt*.\n\n🔙 _Type *back* to edit details_`);
+                    return await sendWA(from, t(getUserLang(from), 'fee.prompt', { fee: 1500, bankLabel: getBankLabel() }));
                 }
             }
 
             case STATES.ADDRESS:
                 pushHistory(from, state, data);
                 data.address = body;
-                data.fee = 2500;
-                userStates.set(from, STATES.RECEIPT);
-                return await sendWA(from, `💰 *Fee:* LKR 2500\n\n${getBankLabel()}\n\n📸 Upload *receipt*.\n\n🔙 _Type *back* to edit details_`);
+                if (data.isNewStudent) {
+                    // New student: address → receipt
+                    data.fee = 2500;
+                    userStates.set(from, STATES.RECEIPT);
+                    return await sendWA(from, t(getUserLang(from), 'fee.prompt', { fee: 2500, bankLabel: getBankLabel() }));
+                } else {
+                    // Old student: address → month
+                    userStates.set(from, STATES.OLD_MONTH);
+                    return await sendWA(from, t(getUserLang(from), 'month.ask'));
+                }
 
             case STATES.RECEIPT:
-                if (!msg.hasMedia) return await sendWA(from, '❌ Send receipt as image/PDF.');
+                if (!msg.hasMedia) return await sendWA(from, t(getUserLang(from), 'receipt.needMedia'));
                 try {
-                    const media = await msg.downloadMedia();
-                    await sendWA(from, '⏳ _Uploading..._');
+                    await sendWA(from, t(getUserLang(from), 'receipt.uploading'));
+
+                    // Robust media download with retries
+                    let media = null;
+                    for (let i = 0; i < 3; i++) {
+                        try {
+                            media = await msg.downloadMedia();
+                            if (media && media.data) break;
+                        } catch (err) {
+                            console.warn(`[Media] Download attempt ${i + 1} failed:`, err.message);
+                        }
+                        await delay(2000); // Wait 2s before retry
+                    }
+
+                    if (!media || !media.data) {
+                        console.error('[Media] Failed to download media after 3 attempts.');
+                        return await sendWA(from, t(getUserLang(from), 'receipt.uploadFail'));
+                    }
+
                     data.receiptUrl = await uploadReceiptToDrive(media, data.idNumber, data.name || 'Student');
-                    if (!data.receiptUrl) return await sendWA(from, '⚠️ Receipt upload failed. Please try again with a clear JPG/PNG/PDF.');
+                    if (!data.receiptUrl) return await sendWA(from, t(getUserLang(from), 'receipt.uploadFail'));
+
+                    saveSessionsNow(); // Persist milestone
                     data.receiptMsgId = msg.id._serialized; // Store ID for later forwarding
 
                     userStates.set(from, STATES.CONFIRM);
-                    let preview = `📋 *PREVIEW*\n\nName: ${data.name}\nSchool: ${data.school || 'N/A'}\nID: ${data.idNumber}\nMonth: ${data.months}\nGrade: ${data.grade}\nTutes: ${data.wantsTutes ? 'Yes' : 'No'}`;
-                    if (data.wantsTutes && data.address) {
-                        preview += `\nAddress: ${data.address}`;
-                    }
-                    preview += `\n\n*Reply "yes" to submit or "menu" to restart.*`;
+                    const addressLine = data.wantsTutes && data.address ? `\nAddress: ${data.address}` : '';
+                    const preview = t(getUserLang(from), 'confirm.preview', {
+                        name: data.name,
+                        school: data.school || 'N/A',
+                        idNumber: data.idNumber || 'New Registration',
+                        month: data.months,
+                        grade: data.grade,
+                        tutes: data.wantsTutes ? 'Yes' : 'No',
+                        addressLine
+                    });
                     return await sendWA(from, preview);
-                } catch (e) { return await sendWA(from, '⚠️ Error uploading receipt.'); }
+                } catch (e) {
+                    console.error('[Media] Error handling receipt:', e.message);
+                    return await sendWA(from, t(getUserLang(from), 'receipt.uploadError'));
+                }
 
             case STATES.CONFIRM:
                 if (lowerBody === 'yes') {
-                    await sendWA(from, '🚀 Submitting...');
-                    pendingApprovals.set(data.idNumber, { ...data, status: 'Pending' });
+                    const confirmLang = getUserLang(from);
+                    await sendWA(from, t(confirmLang, 'submit.sending'));
+
+                    // Generate Batch-based ID at the last second for NEW students
+                    if (data.isNewStudent) {
+                        data.idNumber = await generateBatchStudentId(data.grade);
+                        saveSessionsNow(); // Persist ID assignment
+                    }
+
+                    // 1. Perform database update first! If this fails, the global catch handles it
+                    // and prevents ghost records in memory.
                     await upsertStudentData(data);
+
+                    // 2. Only update memory cache after DB confirms success
+                    pendingApprovals.set(data.idNumber, { ...data, status: 'Pending' });
+
                     let enrollMsg = `🔔 *NEW ENROLLMENT*\nID: ${data.idNumber}\nName: ${data.name}\nSchool: ${data.school || 'N/A'}\nGrade: ${data.grade}\nPhone: ${data.phone}\nMonth: ${data.months}\nTutes: ${data.wantsTutes ? 'Yes' : 'No'}\nFee: LKR ${data.fee || data.totalFee || 'N/A'}`;
                     if (data.wantsTutes && data.address) {
                         enrollMsg += `\nAddress: ${data.address}`;
@@ -1510,79 +1947,110 @@ client.on('message', async msg => {
                     }
 
                     resetUser(from);
-                    return await sendWA(from, '✅ Admission submitted for approval.');
+                    return await sendWA(from, t(confirmLang, 'submit.done') + `\n\n🆔 *Your Student ID:* ${data.idNumber}`);
                 }
-                return await sendWA(from, 'Reply "yes" or "menu".');
+                if (lowerBody === 'no') {
+                    const cancelLang = getUserLang(from);
+                    resetUser(from);
+                    return await sendWA(from, t(cancelLang, 'start.cancelled'));
+                }
+                return await sendWA(from, t(getUserLang(from), 'confirm.reply'));
 
             case STATES.OLD_ID: {
                 const nid = normalizeStudentId(body);
-                if (!registeredStudentIds.has(nid)) return await sendWA(from, `❌ ID *${nid}* not found.`);
+                if (!registeredStudentIds.has(nid)) return await sendWA(from, t(getUserLang(from), 'oldId.notFound', { id: nid }));
                 pushHistory(from, state, data);
                 const existing = registeredStudentIds.get(nid);
                 Object.assign(data, existing);
                 data.idNumber = nid;
+                data.isNewStudent = false;
                 userStates.set(from, STATES.OLD_CONFIRM);
-                return await sendWA(from, `👋 Welcome back, *${existing.name}*!\nGrade: ${existing.grade}\nPhone: ${existing.phone}\n\n*Reply "yes" or "no".*\n\n🔙 _Type *back* to edit details_`);
+                return await sendWA(from, t(getUserLang(from), 'oldConfirm.prompt', { name: existing.name, grade: existing.grade, phone: existing.phone }));
             }
 
             case STATES.OLD_CONFIRM:
                 if (lowerBody === 'yes') {
                     pushHistory(from, state, data);
                     userStates.set(from, STATES.OLD_TUTES_OPTION);
-                    return await sendWA(from, '📦 Include *tutes* (yes/no)?\n\n🔙 _Type *back* to edit details_');
+                    return await sendWA(from, t(getUserLang(from), 'oldTutes.ask'));
                 }
-                return await sendWA(from, 'Reply "yes" or "back".');
+                if (lowerBody === 'no') {
+                    const oldCancelLang = getUserLang(from);
+                    resetUser(from);
+                    return await sendWA(from, t(oldCancelLang, 'start.cancelled'));
+                }
+                return await sendWA(from, t(getUserLang(from), 'oldConfirm.reply'));
 
             case STATES.OLD_TUTES_OPTION:
-                if (!['yes', 'no'].includes(lowerBody)) return await sendWA(from, '❌ Please reply with "yes" or "no".');
+                if (!['yes', 'no'].includes(lowerBody)) return await sendWA(from, t(getUserLang(from), 'yesNo.invalid'));
                 pushHistory(from, state, data);
                 data.wantsTutes = lowerBody === 'yes';
+                if (data.wantsTutes) {
+                    userStates.set(from, STATES.ADDRESS);
+                    return await sendWA(from, t(getUserLang(from), 'address.ask'));
+                }
                 userStates.set(from, STATES.OLD_MONTH);
-                return await sendWA(from, '🗓️ Month (e.g. April)?\n\n🔙 _Type *back* to edit details_');
+                return await sendWA(from, t(getUserLang(from), 'month.ask'));
 
             case STATES.OLD_MONTH: {
                 const resolved = resolveMonthInput(body);
-                if (!resolved) return await sendWA(from, `❌ Invalid month.`);
+                if (!resolved) return await sendWA(from, t(getUserLang(from), 'month.invalid'));
                 pushHistory(from, state, data);
                 data.months = resolved;
                 data.status = 'Pending';
                 data.fee = data.wantsTutes ? 2500 : 1500;
-                if (data.wantsTutes) {
-                    userStates.set(from, STATES.ADDRESS);
-                    return await sendWA(from, '🏠 Shipping address?');
-                }
                 userStates.set(from, STATES.RECEIPT);
-                return await sendWA(from, `💰 *Amount:* LKR ${data.fee}\n\n${getBankLabel()}\n\n📸 Upload receipt.`);
+                const confMsg = t(getUserLang(from), 'month.confirmed', { resolved });
+                const amntMsg = t(getUserLang(from), 'amount.prompt', { fee: data.fee, bankLabel: getBankLabel() });
+                return await sendWA(from, `${confMsg}\n\n${amntMsg}`);
             }
 
-            case STATES.COMPLAIN:
+            case STATES.COMPLAIN: {
+                const complainLang = getUserLang(from);
                 await notifyAdmins(`📣 *COMPLAIN* from ${from}:\n\n${body}`);
                 await saveComplaintToSheets(from, body);
                 resetUser(from);
-                return await sendWA(from, '✅ Sent to admin. Thank you!');
+                return await sendWA(from, t(complainLang, 'complain.done'));
+            }
 
             case STATES.BACK_MENU: {
                 const choice = parseInt(body, 10);
+                const max = data.maxBackStage || 0;
+                if (isNaN(choice) || choice < 1 || choice > max) {
+                    const lang = getUserLang(from);
+                    return await sendWA(from, data.isNewStudent ? t(lang, 'back.new.invalid') : t(lang, 'back.old.invalid'));
+                }
+
                 if (data.isNewStudent) {
                     switch (choice) {
-                        case 1: userStates.set(from, STATES.NAME); return await sendWA(from, '🤝 Please enter your *full name*.');
-                        case 2: userStates.set(from, STATES.SCHOOL); return await sendWA(from, '🏫 What is your *school name*?');
-                        case 3: userStates.set(from, STATES.EMAIL); return await sendWA(from, '📧 What is your *email address*?');
-                        case 4: userStates.set(from, STATES.PHONE); return await sendWA(from, '📫 What is your *phone number*?');
-                        case 5: userStates.set(from, STATES.GRADE); return await sendWA(from, '🎓 Which *Grade* (6-11)?');
-                        case 6: userStates.set(from, STATES.MONTHS); return await sendWA(from, '🗓️ Which *month* (e.g. April)?');
-                        case 7: userStates.set(from, STATES.TUTES_OPTION); return await sendWA(from, '📦 Include *tutes* (yes/no)?');
-                        default: return await sendWA(from, '❌ Invalid choice. Please type a number (1-7) from the menu.');
+                        case 1: userStates.set(from, STATES.NAME); return await sendWA(from, t(getUserLang(from), 'back.new.name'));
+                        case 2: userStates.set(from, STATES.SCHOOL); return await sendWA(from, t(getUserLang(from), 'back.new.school'));
+                        case 3: userStates.set(from, STATES.EMAIL); return await sendWA(from, t(getUserLang(from), 'back.new.email'));
+                        case 4: userStates.set(from, STATES.PHONE); return await sendWA(from, t(getUserLang(from), 'back.new.phone'));
+                        case 5: userStates.set(from, STATES.GRADE); return await sendWA(from, t(getUserLang(from), 'back.new.grade'));
+                        case 6: userStates.set(from, STATES.MONTHS); return await sendWA(from, t(getUserLang(from), 'back.new.month'));
+                        case 7: userStates.set(from, STATES.TUTES_OPTION); return await sendWA(from, t(getUserLang(from), 'back.new.tutes'));
+                        default: return await sendWA(from, t(getUserLang(from), 'back.new.invalid'));
                     }
                 } else {
                     switch (choice) {
-                        case 1: userStates.set(from, STATES.OLD_ID); return await sendWA(from, '🆔 Please enter your *Student ID* (e.g. NEX-001).');
-                        case 2: userStates.set(from, STATES.OLD_MONTH); return await sendWA(from, '🗓️ Which *month* (e.g. April)?');
-                        case 3: userStates.set(from, STATES.OLD_TUTES_OPTION); return await sendWA(from, '📦 Include *tutes* (yes/no)?');
-                        default: return await sendWA(from, '❌ Invalid choice. Please type a number (1-3) from the menu.');
+                        case 1: userStates.set(from, STATES.OLD_ID); return await sendWA(from, t(getUserLang(from), 'back.old.id'));
+                        case 2: userStates.set(from, STATES.OLD_TUTES_OPTION); return await sendWA(from, t(getUserLang(from), 'back.old.tutes'));
+                        case 3: userStates.set(from, STATES.OLD_MONTH); return await sendWA(from, t(getUserLang(from), 'back.old.month'));
+                        default: return await sendWA(from, t(getUserLang(from), 'back.old.invalid'));
                     }
                 }
             }
+        }
+    } catch (globalError) {
+        console.error(`[Message Handler] Unhandled Error processing message from ${from}:`, globalError.stack || globalError.message);
+
+        // Safety reset to prevent the user from being permanently stuck in a corrupted state
+        try {
+            resetUser(from);
+            await sendWA(from, `⚠️ *A system error occurred.* \nLet's try that again. Please type *menu* to restart.`);
+        } catch (e) {
+            console.error(`[Message Handler] Failed to send error recovery message:`, e.message);
         }
     } finally {
         saveSessions();
@@ -1598,7 +2066,8 @@ client.on('auth_failure', msg => {
 
 client.on('disconnected', (reason) => {
     console.warn('⚠️ BOT DISCONNECTED:', reason);
-    console.log('Bot will try to reconnect automatically or restart via PM2.');
+    console.log('Force exiting to allow PM2 to restart the process and recover the session.');
+    process.exit(1);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
@@ -1614,13 +2083,17 @@ process.on('uncaughtException', (err) => {
 async function gracefulShutdown(signal) {
     if (isShuttingDown) return;
     isShuttingDown = true;
-    console.warn(`Received ${signal}. Shutting down safely...`);
+    console.warn(`[System] Received ${signal}. Shutting down safely...`);
     try {
         saveSessionsNow();
-        await client.destroy();
+        if (client) {
+            console.log('[WhatsApp] Destroying client...');
+            await client.destroy();
+        }
     } catch (err) {
-        console.error('Error during shutdown:', err.message);
+        console.error('[System] Error during shutdown:', err.message);
     } finally {
+        console.log('[System] Exit complete.');
         process.exit(0);
     }
 }

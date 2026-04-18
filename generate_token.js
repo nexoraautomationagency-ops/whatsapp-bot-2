@@ -1,10 +1,26 @@
 const { google } = require('googleapis');
 const fs = require('fs');
+const path = require('path');
 
-const code = '4/0Aci98E8b4ldX14RVcxwsvEYyHBd9JHXeTSsz7o8U03NwDmoY0o5hvD63T-629DQQojqnvw';
+const TOKEN_PATH = path.join(__dirname, 'token.json');
+const CREDENTIALS_PATH = path.join(__dirname, 'credentials.json');
+
+// Get the code from the user (Usage: node generate_token.js <code>)
+const code = process.argv[2];
+
+if (!code) {
+    console.log('\n❌ ERROR: No authorization code provided.');
+    console.log('Usage: node generate_token.js YOUR_CODE_HERE\n');
+    process.exit(1);
+}
 
 try {
-    const credentials = JSON.parse(fs.readFileSync('credentials.json'));
+    if (!fs.existsSync(CREDENTIALS_PATH)) {
+        console.error(`❌ ERROR: credentials.json not found at ${CREDENTIALS_PATH}`);
+        process.exit(1);
+    }
+
+    const credentials = JSON.parse(fs.readFileSync(CREDENTIALS_PATH));
     const key = credentials.installed || credentials.web;
     const redirectUri = (key.redirect_uris && key.redirect_uris.length > 0) ? key.redirect_uris[0] : 'urn:ietf:wg:oauth:2.0:oob';
     
@@ -12,14 +28,17 @@ try {
         key.client_id, key.client_secret, redirectUri
     );
 
+    console.log('Exchanging code for token...');
     oAuth2Client.getToken(code, (err, token) => {
         if (err) {
-            console.error('Error exchanging code for token. The code may have expired. Please click the link again and copy the new code if this fails: ', err.message);
+            console.error('❌ ERROR: Failed to exchange code for token:', err.message);
             return;
         }
-        fs.writeFileSync('token.json', JSON.stringify(token, null, 2));
-        console.log('SUCCESS! token.json has been created!');
+        
+        fs.writeFileSync(TOKEN_PATH, JSON.stringify(token, null, 2));
+        console.log('\n✅ SUCCESS! token.json has been created successfully!');
+        console.log(`Location: ${TOKEN_PATH}\n`);
     });
 } catch (e) {
-    console.error('Error reading credentials:', e.message);
+    console.error('❌ ERROR:', e.message);
 }
