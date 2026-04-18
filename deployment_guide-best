@@ -82,7 +82,7 @@ Once you've connected to your server via SSH (`ssh root@ip`), run these commands
     ```
     Once it says **"Client is ready!"**, stop it with `CTRL+C`.
 
-2.  **Set up 24/7 Run:**
+2.  **Set up 24/7 Run (using the official config):**
     ```bash
     pm2 start ecosystem.config.js
     pm2 save
@@ -99,7 +99,29 @@ If you want to edit your code (e.g., change a message in `bot.js`) in the future
 
 1.  **PC:** `git add .` -> `git commit -m "update"` -> `git push`
 2.  **Vultr Server:** `cd whatsapp-bot-2` -> `git pull origin main`
-3.  **Restart:** `pm2 restart all`
+3.  **Restart:** `pm2 restart whatsapp-bot` (or `pm2 restart all`)
+
+---
+
+## 🧹 Part 6: Data Management & Cleanup
+
+If you need to clear student data or reset the bot state on the server:
+
+### 1. Reset Active User Sessions
+If users are "stuck" in a registration flow or you want everyone to return to the main menu:
+1. `pm2 stop whatsapp-bot`
+2. `rm sessions.json`
+3. `pm2 start whatsapp-bot`
+
+### 2. Full Logout (New QR Code)
+If you want to switch WhatsApp accounts:
+1. `pm2 stop whatsapp-bot`
+2. `rm -rf .wwebjs_auth`
+3. `node bot.js` (Scan new QR) then `CTRL+C`
+4. `pm2 start whatsapp-bot`
+
+### 3. Clear Permanent Database
+The bot doesn't delete Google Sheets records. You must open your **Google Sheet** manually, delete the student rows you don't want, and save it.
 
 ---
 
@@ -120,19 +142,20 @@ When move to a new server, **NEVER** copy the `.wwebjs_auth` or `sessions.json` 
 
 ### 2. 📊 Monitoring your Bot
 *   `pm2 logs`: See live messages/errors.
-*   `pm2 monit`: A dashboard for CPU and RAM usage.
-*   `pm2 list`: Quick check of the bot's status.
+*   `pm2 status`: Check which processes are running.
+*   `pm2 delete all`: Remove all entries if you see duplicate bot names.
 
 ### 3. 🔄 Disconnection Recovery
 If the bot stops responding:
-1.  Run `pm2 restart all`.
+1.  Run `pm2 restart whatsapp-bot`.
 2.  If it still fails, run `node bot.js` manually to see if a new QR code is needed.
 
 ### 4. 🛠️ Configuration Changes
-Whenever you edit your `.env` file, you **must** run `pm2 restart all` for the changes to take effect.
+Whenever you edit your `.env` file, you **must** run `pm2 restart whatsapp-bot` for the changes to take effect.
 
 ### 5. 📧 Google Token Refresh
 If you get a Google login error after a long time:
 1.  Run `node generate_token.js` on your PC.
 2.  Log in and save the new `token.json`.
 3.  Copy its content and paste it into the server's `token.json`.
+
