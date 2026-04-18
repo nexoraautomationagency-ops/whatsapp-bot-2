@@ -83,71 +83,71 @@ const LANG = {
 
 const I18N = {
     [LANG.EN]: {
-        'language.prompt': 'Welcome to *{{schoolName}}*! 👋 What language do you prefer?\n\n1️⃣ - English\n2️⃣ - Sinhala\n\n_↩️ (Type back for menu)_',
-        'language.invalid': '❌ Please reply with 1 for English or 2 for Sinhala.',
-        'menu.text': 'Welcome to *{{schoolName}}*! 👋\n\nReply with a number:\n\n1️⃣ - New admission 🎓\n2️⃣ - Pay monthly fees 💰\n3️⃣ - Send a message to Sir ✉️\n4️⃣ - Change language 🌐\n\n_Type menu anytime to restart_',
-        'start.newAdmissionPrompt': '👤 *Name:* Let’s register you. What is your *full name*?\n\n_🔙 (Type **back** to edit | **menu** for exit)_',
-        'start.monthlyPrompt': '🆔 *ID:* Please send your *Student ID* (e.g., 310001).\n\n_🔙 (Type **back** to edit | **menu** for exit)_',
-        'start.complainPrompt': '✍️ *Message:* Type your message below. I will send it directly to Sir.',
+        'language.prompt': 'Welcome to *{{schoolName}}*! 👋\n\nWhat language do you prefer?\n\n1️⃣ - English\n2️⃣ - Sinhala\n\n_↩️ (Type back for menu)_',
+        'language.invalid': '❌ Invalid selection. Please reply with 1 for English or 2 for Sinhala.',
+        'menu.text': 'Welcome to *{{schoolName}}*! 👋\n\nHow can I help you today? Reply with a number:\n\n1️⃣ - New Admission 🎓\n2️⃣ - Pay Monthly Fees 💰\n3️⃣ - Message to Sir ✉️\n4️⃣ - Change Language 🌐\n\n_Type menu anytime to restart_',
+        'start.newAdmissionPrompt': '👤 *Name:* Let’s get you registered. What is your *full name*?\n\n_🔙 (Type **back** to edit | **menu** for exit)_',
+        'start.monthlyPrompt': '🆔 *Student ID:* Please send your *Student ID* (e.g., 310001) to start the payment process.\n\n_🔙 (Type **back** to edit | **menu** for exit)_',
+        'start.complainPrompt': '✉️ *Message:* Please type your message below. I will send it directly to Sir.',
         'start.cancelled': '❌ Session cancelled.\n\n_Type menu anytime to start over._',
-        'start.pickMenuOption': '❌ Please reply with 1, 2, 3, or 4 from the menu.',
-        'language.changed': '✅ Language updated!',
-        'start.cannotBackAfterReceipt': '❌ You can’t edit details after uploading the slip.',
-        'name.invalid': '❌ Invalid name. Please type your full name.',
+        'start.pickMenuOption': '❌ Please select a valid option (1, 2, 3, or 4) from the menu.',
+        'language.changed': '✅ Language updated successfully!',
+        'start.cannotBackAfterReceipt': '❌ Sorry, you cannot edit details after uploading the bank slip.',
+        'name.invalid': '❌ Please enter a valid full name.',
         'school.askAfterName': '🏫 *School:* What is the name of your school? [back: 🔙]',
         'school.invalid': '❌ Please enter a valid school name.',
         'email.ask': '📩 *Email:* What is your email address? [back: 🔙]',
-        'email.invalid': '❌ Invalid email. Please try again.',
-        'phone.ask': '📞 *WhatsApp:* What number should we add to the group? [back: 🔙]',
-        'phone.invalid': '❌ Invalid number. Try again.',
-        'grade.ask': '{{idLine}}🎓 *Grade:* What Grade are you in (6-11)? [back: 🔙]',
+        'email.invalid': '❌ That doesn’t look like a valid email. Please try again.',
+        'phone.ask': '📞 *WhatsApp:* Which number should we use to add you to the class group? [back: 🔙]',
+        'phone.invalid': '❌ Please enter a valid WhatsApp number.',
+        'grade.ask': '{{idLine}}🎓 *Grade:* Which Grade are you in (6-11)? [back: 🔙]',
         'month.confirmed': '✅ Saved for *{{resolved}}*.',
         'grade.invalid': '❌ Please enter a grade between 6 and 11.',
         'month.ask': '🗓️ *Month:* Which month are you paying for? (e.g., April) [back: 🔙]',
-        'month.invalidUnrecognized': '❌ Invalid month. Try again.',
-        'tutes.ask': '✅ Saved for *{{resolved}}*.\n📦 *Tutes:* Do you need tutes delivered? (yes/no) [back: 🔙]',
-        'yesNo.invalid': '❌ Just reply with "yes" or "no" please!',
-        'address.ask': '📍 *Address:* Please type your full home address. [back: 🔙]',
-        'fee.prompt': '💸 *Fee:* LKR {{fee}}\n\n{{bankLabel}}\n\n📸 Please upload a photo of the *bank slip* here. [back: 🔙]',
-        'receipt.needMedia': '❌ Please send the bank slip as an image or PDF.',
-        'receipt.uploading': '⏳ _Uploading slip..._',
-        'receipt.uploadFail': '⚠️ Upload failed. Please send a clear JPG/PNG/PDF file again.',
-        'receipt.uploadError': '⚠️ Error processing your slip.',
-        'confirm.preview': '📝 *Check details:*\n\n*Name:* {{name}}\n*School:* {{school}}\n*ID:* {{idNumber}}\n*Month:* {{month}}\n*Grade:* {{grade}}\n*Tutes:* {{tutes}}{{addressLine}}\n\n_Reply "yes" to submit, or type "menu" for exit._',
-        'submit.sending': '⏳ Submitting details...',
-        'submit.done': '✅ Done! Your details are sent for approval. You will be added to groups soon.',
-        'confirm.reply': 'Reply "yes" to confirm, or "menu" to cancel.',
-        'oldConfirm.prompt': '👋 Welcome back, *{{name}}*!\n\nGrade: {{grade}}\nWhatsApp: {{phone}}\n\n*Is this you? Reply "yes" or "no".* [back: 🔙]',
-        'oldTutes.ask': '📦 *Tutes:* Do you need tutes this month? (yes/no) [back: 🔙]',
+        'month.invalidUnrecognized': '❌ I couldn’t recognize that month. Please try again.',
+        'tutes.ask': '✅ Saved for *{{resolved}}*.\n📦 *Tutes:* Do you need tutes delivered to your home? (yes/no) [back: 🔙]',
+        'yesNo.invalid': '❌ Please reply with "yes" or "no".',
+        'address.ask': '📍 *Address:* Please type your *full home address* for delivery. [back: 🔙]',
+        'fee.prompt': '💸 *Payment Details:*\n\nFee: *LKR {{fee}}*\n\n{{bankLabel}}\n\n📸 Please upload a photo of your *bank slip* here once you are done. [back: 🔙]',
+        'receipt.needMedia': '❌ Please send the bank slip as an image or a PDF.',
+        'receipt.uploading': '⏳ _Uploading your slip..._',
+        'receipt.uploadFail': '⚠️ Upload failed. Please try sending a clear JPG/PNG or PDF again.',
+        'receipt.uploadError': '⚠️ Something went wrong while processing your slip. Please try again.',
+        'confirm.preview': '📝 *Registration Preview:*\n\n*Name:* {{name}}\n*School:* {{school}}\n*ID:* {{idNumber}}\n*Month:* {{month}}\n*Grade:* {{grade}}\n*Tutes:* {{tutes}}{{addressLine}}\n\n_Reply "yes" to submit for approval, or "menu" to cancel._',
+        'submit.sending': '⏳ Sending your details to Sir...',
+        'submit.done': '✅ Registration Successful! Your details have been sent. You will be added to the groups once approved.',
+        'confirm.reply': 'Please reply with "yes" to confirm or "menu" to cancel.',
+        'oldConfirm.prompt': '👋 Welcome back, *{{name}}*!\n\nGrade: {{grade}}\nWhatsApp: {{phone}}\n\n*Is this correct? Reply "yes" or "no".* [back: 🔙]',
+        'oldTutes.ask': '📦 *Tutes:* Do you need tutes delivered for this month? (yes/no) [back: 🔙]',
         'oldConfirm.reply': 'Please reply with "yes" or "back".',
-        'month.invalid': '❌ Not a valid month.',
-        'oldId.notFound': '❌ ID *{{id}}* not found. Are you sure it’s correct?',
+        'month.invalid': '❌ Invalid month. Please try again.',
+        'oldId.notFound': '❌ Sorry, ID *{{id}}* was not found. Please check and try again.',
         'oldAddress.ask': '📍 *Address:* What is your delivery address?',
-        'amount.prompt': '💸 *Amount Due:* LKR {{fee}}\n\n{{bankLabel}}\n\n📸 Please upload your bank slip here.',
+        'amount.prompt': '💸 *Total Due:* LKR {{fee}}\n\n{{bankLabel}}\n\n📸 Please upload your bank slip here.',
         'complain.done': '✅ Message sent to Sir. Thank you!',
-        'backMenu.title': '🔙 **EDIT MENU**\nSelect what you want to change:\n\n{{options}}\n\n_Type the number, or "menu" to exit._',
+        'backMenu.title': '🔙 *EDIT DETAILS*\n\nSelect what you want to change:\n\n{{options}}\n\n_Send the number, or "menu" to exit._',
         'back.new.name': '👤 *Name:* Type your full name:',
         'back.new.school': '🏫 *School:* Type your school name:',
         'back.new.email': '📩 *Email:* Type your email address:',
         'back.new.phone': '📞 *WhatsApp:* Type your WhatsApp number:',
-        'back.new.grade': '🎓 *Grade:* Enter grade (6-11):',
-        'back.new.month': '🗓️ *Month:* Enter month (e.g. April):',
+        'back.new.grade': '🎓 *Grade:* Type grade (6-11):',
+        'back.new.month': '🗓️ *Month:* Type the month (e.g. April):',
         'back.new.tutes': '📦 *Tutes:* Need delivery? (yes/no):',
-        'back.new.invalid': '❌ Invalid choice. Please type a number (1-7).',
-        'back.old.id': '🆔 *ID:* Enter your Student ID:',
-        'back.old.month': '🗓️ *Month:* Enter month (e.g. April):',
+        'back.new.invalid': '❌ Invalid choice. Please select 1-7.',
+        'back.old.id': '🆔 *ID:* Type your Student ID:',
+        'back.old.month': '🗓️ *Month:* Type the month (e.g. April):',
         'back.old.tutes': '📦 *Tutes:* Need delivery? (yes/no):',
-        'back.old.invalid': '❌ Invalid choice. Please type a number (1-3).'
+        'back.old.invalid': '❌ Invalid choice. Please select 1-3.'
     },
     [LANG.SI]: {
-        'language.prompt': '*{{schoolName}}* එකට සාදරයෙන් පිළිගන්නවා! 👋 ඔයා කැමති language එක select කරන්න:\n\n1️⃣ - English\n2️⃣ - Sinhala\n\n_↩️ (මුලට යන්න back එවන්න)_',
-        'language.invalid': '❌ වැරදි selection එකක්. English වලට 1 හෝ Sinhala වලට 2 කියලා reply කරන්න.',
-        'menu.text': '*{{schoolName}}* එකට සාදරයෙන් පිළිගන්නවා! 👋\n\nඔයාට අවශ්‍ය දේ පහත options වලින් select කරන්න:\n\n1️⃣ - New admission 🎓\n2️⃣ - Monthly fees pay කරන්න 💰\n3️⃣ - Sir ට message එකක් එවන්න ✉️\n4️⃣ - Language එක change කරන්න 🌐\n\n_ඕනෑම වෙලාවක menu කියලා එවන්න_',
+        'language.prompt': '*{{schoolName}}* එකට සාදරයෙන් පිළිගන්නවා! 👋\n\nඔයා කැමති language එක select කරන්න:\n\n1️⃣ - English\n2️⃣ - Sinhala\n\n_↩️ (මුලට යන්න back එවන්න)_',
+        'language.invalid': '❌ වැරදි selection එකක්. English වලට 1 හෝ Sinhala වලට 2 එවන්න.',
+        'menu.text': '*{{schoolName}}* එකට සාදරයෙන් පිළිගන්නවා! 👋\n\nඔයාට අවශ්‍ය දේ පහත options වලින් select කරන්න:\n\n1️⃣ - New Admission 🎓\n2️⃣ - Monthly Fees pay කරන්න 💰\n3️⃣ - Sir ට message එකක් එවන්න ✉️\n4️⃣ - Language එක වෙනස් කරන්න 🌐\n\n_ඕනෑම වෙලාවක menu කියලා එවන්න_',
         'start.newAdmissionPrompt': '👤 *Name:* Registration වැඩ පටන් ගමු. ඔයාගේ *full name* එක එවන්න:\n\n_🔙 (වෙනස් කරන්න **back** එවන්න | ඉවත් වෙන්න **menu** එවන්න)_',
-        'start.monthlyPrompt': '🆔 *ID:* Payment එක කරන්න ඔයාගේ *Student ID* එක එවන්න (e.g., 310001):\n\n_🔙 (වෙනස් කරන්න **back** එවන්න | ඉවත් වෙන්න **menu** එවන්න)_',
-        'start.complainPrompt': '✍️ *Message:* ඔයාට කියන්න තියෙන දේ එවන්න. අපි ඒක Sir ට forward කරන්නම්.',
+        'start.monthlyPrompt': '🆔 *Student ID:* Payment එක කරන්න ඔයාගේ *Student ID* එක එවන්න (e.g., 310001):\n\n_🔙 (වෙනස් කරන්න **back** එවන්න | ඉවත් වෙන්න **menu** එවන්න)_',
+        'start.complainPrompt': '✉️ *Message:* ඔයාට කියන්න තියෙන දේ එවන්න. මම ඒක Sir ට forward කරන්නම්.',
         'start.cancelled': '❌ Session එක cancel කළා.\n\n_ආයෙත් පටන් ගන්න ඕන වුණාම menu කියලා එවන්න._',
-        'start.pickMenuOption': '❌ පහත options වලින් එකක් (1, 2, 3, හෝ 4) select කරන්න.',
+        'start.pickMenuOption': '❌ කරුණාකර නිවැරදි option එකක් (1, 2, 3, හෝ 4) select කරන්න.',
         'language.changed': '✅ Language එක සාර්ථකව update කළා!',
         'start.cannotBackAfterReceipt': '❌ Receipt එක upload කළාට පස්සේ details වෙනස් කරන්න බැහැ.',
         'name.invalid': '❌ නම වැරදියි. ඔයාගේ full name එක එවන්න.',
@@ -158,47 +158,50 @@ const I18N = {
         'phone.ask': '📞 *WhatsApp:* Group එකට add කරන්න ඕන WhatsApp number එක එවන්න: [back: 🔙]',
         'phone.invalid': '❌ WhatsApp number එක වැරදියි. නිවැරදි number එකක් එවන්න.',
         'grade.ask': '{{idLine}}🎓 *Grade:* ඔයා ඉගෙන ගන්නේ කීවෙනි Grade එකේද (6-11)? [back: 🔙]',
-        'month.confirmed': '✅ *{{resolved}}* මාසය සඳහා confirm කළා.',
-        'grade.invalid': '❌ වැරදියි. Grade එක 6 සහ 11 අතර අගයක් එවන්න.',
+        'month.confirmed': '✅ *{{resolved}}* මාසය confirm කළා.',
+        'grade.invalid': '❌ Grade එක 6 සහ 11 අතර අගයක් එවන්න.',
         'month.ask': '🗓️ *Month:* ඔයා payment එක කරන්නේ මොන month එකටද (Eg: April)? [back: 🔙]',
         'month.invalidUnrecognized': '❌ Month එක වැරදියි. නිවැරදි මාසයක් එවන්න.',
         'tutes.ask': '✅ *{{resolved}}* මාසය තෝරාගත්තා.\n📦 *Tutes:* ඔයාට tutes ගෙදරටම ගෙන්න ගන්න අවශ්‍යද? (yes/no) [back: 🔙]',
-        'yesNo.invalid': '❌ කරුණාකර "yes" හෝ "no" කියලා විතරක් reply කරන්න.',
+        'yesNo.invalid': '❌ කරුණාකර "yes" හෝ "no" කියලා reply කරන්න.',
         'address.ask': '📍 *Address:* Tutes එවන්න ඕන full home address එක එවන්න: [back: 🔙]',
-        'fee.prompt': '💸 *Payment:* මුදල: LKR {{fee}}\n\n{{bankLabel}}\n\n📸 කරුණාකර payment එක කරලා *receipt* එක මෙතනට upload කරන්න. [back: 🔙]',
+        'fee.prompt': '💸 *Payment Details:*\n\nමුදල: *LKR {{fee}}*\n\n{{bankLabel}}\n\n📸 කරුණාකර payment එක කරලා *bank slip* එක මෙතනට upload කරන්න. [back: 🔙]',
         'receipt.needMedia': '❌ කරුණාකර receipt එක image එකක් හෝ PDF එකක් විදිහට එවන්න.',
         'receipt.uploading': '⏳ _Receipt එක upload වෙනවා..._',
         'receipt.uploadFail': '⚠️ Upload වෙන්නෙ නැහැ. කරුණාකර පැහැදිලි photo එකක් ආයෙත් එවන්න.',
-        'receipt.uploadError': '⚠️ Receipt එක process කිරීමේදී error එකක් වුණා.',
-        'confirm.preview': '📝 *ඔයාගේ details සියල්ල මෙන්න:*\n\n*Name:* {{name}}\n*School:* {{school}}\n*ID:* {{idNumber}}\n*Month:* {{month}}\n*Grade:* {{grade}}\n*Tutes:* {{tutes}}{{addressLine}}\n\n_ඉදිරියට යන්න "yes" එවන්න, නැතිනම් "menu" එවන්න._',
-        'submit.sending': '⏳ ඔයාගේ details ටික යවනවා. කරුණාකර රැඳී සිටින්න...',
-        'submit.done': '✅ ඔයාගේ details ටික admin ට ලැබුණා. Admin approve කළාට පස්සේ ඔයාව groups වලට add කරයි.',
-        'confirm.reply': 'ඉදිරියට යන්න "yes" හෝ ඉවත් වෙන්න "menu" කියලා reply කරන්න.',
-        'oldConfirm.prompt': '👋 Welcome back, *{{name}}*!\n\nGrade: {{grade}}\nWhatsApp: {{phone}}\n\n*මේ ඔයාගේ details ම නේද කියලා confirm කරගන්න "yes" හෝ "no" කියලා එවන්න:* [back: 🔙]',
-        'oldTutes.ask': '📦 *Tutes:* මේ මාසේ tutes ටික ගෙදරටම ගෙන්න ගන්න අවශ්‍යද? (yes/no) [back: 🔙]',
-        'oldConfirm.reply': 'කරුණාකර "yes" හෝ "back" කියලා reply කරන්න.',
-        'month.invalid': '❌ නිවැරදි month එකක් නෙවෙයි. කරුණාකර නිවැරදි මාසයක් එවන්න.',
-        'oldId.notFound': '❌ ID *{{id}}* record වල නැහැ. කරුණාකර ID එක නිවැරදි දැයි බලන්න.',
+        'receipt.uploadError': '⚠️ Receipt එක process කිරීමේදී ප්‍රශ්නයක් වුණා. ආයෙත් try කරන්න.',
+        'confirm.preview': '📝 *Registration Preview:*\n\n*Name:* {{name}}\n*School:* {{school}}\n*ID:* {{idNumber}}\n*Month:* {{month}}\n*Grade:* {{grade}}\n*Tutes:* {{tutes}}{{addressLine}}\n\n_ඉදිරියට යන්න "yes" එවන්න, නැතිනම් "menu" එවන්න._',
+        'submit.sending': '⏳ ඔයාගේ details ටික Sir ට යවනවා...',
+        'submit.done': '✅ Registration සාර්ථකයි! ඔයාගේ details Sir ට ලැබුණා. Admin approve කළාට පස්සේ ඔයාව group එකට add කරයි.',
+        'confirm.reply': 'ඉදිරියට යන්න "yes" එවන්න, නැතිනම් "menu" එවන්න.',
+        'oldConfirm.prompt': '👋 Welcome back, *{{name}}*!\n\nGrade: {{grade}}\nWhatsApp: {{phone}}\n\n*මේ details නිවැරදිද? "yes" හෝ "no" කියලා එවන්න:* [back: 🔙]',
+        'oldTutes.ask': '📦 *Tutes:* මේ මාසේ tutes ගෙදරටම ගෙන්න ගන්න අවශ්‍යද? (yes/no) [back: 🔙]',
+        'oldConfirm.reply': 'කරුණාකර "yes" හෝ "back" එවන්න.',
+        'month.invalid': '❌ මාසය වැරදියි. ආයෙත් try කරන්න.',
+        'oldId.notFound': '❌ ID *{{id}}* system එකේ නැහැ. කරුණාකර නිවැරදි ID එක එවන්න.',
         'oldAddress.ask': '📍 *Address:* Tutes එවන්න ඕන delivery address එක එවන්න:',
-        'amount.prompt': '💸 *Payment:* භාවිත කළ යුතු මුදල: LKR {{fee}}\n\n{{bankLabel}}\n\n📸 කරුණාකර ඔයාගේ receipt එක මෙතනට upload කරන්න.',
-        'complain.done': '✅ ඔයාගේ message එක සාර්ථකව Sir ට forward කළා. ස්තූතියි!',
-        'backMenu.title': '🔙 **EDIT MENU**\nඔයාට වෙනස් කරන්න ඕන detail එක select කරන්න:\n\n{{options}}\n\n_අදාළ number එක reply කරන්න, නැතිනම් "menu" එවන්න._',
+        'amount.prompt': '💸 *ගෙවිය යුතු මුදල:* LKR {{fee}}\n\n{{bankLabel}}\n\n📸 කරුණාකර ඔයාගේ bank slip එක මෙතනට upload කරන්න.',
+        'complain.done': '✅ ඔයාගේ message එක Sir ට ලැබුණා. ස්තුතියි!',
+        'backMenu.title': '🔙 *EDIT DETAILS*\n\nවෙනස් කරන්න ඕන දේ select කරන්න:\n\n{{options}}\n\n_අදාළ number එක එවන්න, නැතිනම් "menu" එවන්න._',
         'back.new.name': '👤 *Name:* ඔයාගේ full name එක එවන්න:',
         'back.new.school': '🏫 *School:* ඔයාගේ school name එක එවන්න:',
         'back.new.email': '📩 *Email:* ඔයාගේ email address එක එවන්න:',
         'back.new.phone': '📞 *WhatsApp:* ඔයාගේ WhatsApp number එක එවන්න:',
-        'back.new.grade': '🎓 *Grade:* ඔයාගේ Grade එක (6-11) එවන්න:',
-        'back.new.month': '🗓️ *Month:* අදාළ month එක (Eg: April) එවන්න:',
-        'back.new.tutes': '📦 *Tutes:* ඔයාට tutes අවශ්‍යද? (yes/no):',
-        'back.new.invalid': '❌ වැරදි selection එකක්. කරුණාකර 1-7 අතර number එකක් reply කරන්න.',
+        'back.new.grade': '🎓 *Grade:* ඔයාගේ Grade එක එවන්න (6-11):',
+        'back.new.month': '🗓️ *Month:* අදාළ මාසය එවන්න (Eg: April):',
+        'back.new.tutes': '📦 *Tutes:* Tutes අවශ්‍යද? (yes/no):',
+        'back.new.invalid': '❌ වැරදි selection එකක්. කරුණාකර 1-7 අතර number එකක් එවන්න.',
         'back.old.id': '🆔 *ID:* ඔයාගේ Student ID එක එවන්න:',
-        'back.old.month': '🗓️ *Month:* අදාළ month එක (Eg: April) එවන්න:',
-        'back.old.tutes': '📦 *Tutes:* ඔයාට මේ මාසේ tutes අවශ්‍යද? (yes/no):',
-        'back.old.invalid': '❌ වැරදි selection එකක්. කරුණාකර 1-3 අතර number එකක් reply කරන්න.'
+        'back.old.month': '🗓️ *Month:* අදාළ මාසය එවන්න (Eg: April):',
+        'back.old.tutes': '📦 *Tutes:* Tutes අවශ්‍යද? (yes/no):',
+        'back.old.invalid': '❌ වැරදි selection එකක්. කරුණාකර 1-3 අතර number එකක් එවන්න.'
     }
 };
 
 function t(lang, key, vars = {}) {
+    // Automatically inject critical variables to prevent "empty space" bugs
+    if (!vars.schoolName) vars.schoolName = SCHOOL_NAME || "Science Class";
+    
     const dict = I18N[lang] || I18N[LANG.EN];
     const fallback = I18N[LANG.EN] || {};
     const template = (dict && dict[key]) || fallback[key] || key;
@@ -535,6 +538,7 @@ function normalizeStudentId(id) {
 }
 
 let idGenerationQueue = Promise.resolve();
+let approvalQueue = Promise.resolve();
 
 /**
  * Generates the next available Student ID based on Batch Year.
@@ -1199,12 +1203,23 @@ async function addStudentToGroup(groupId, contactId) {
 
     let participantId = contactId.trim();
     if (participantId.includes('@lid')) {
-        const contact = await client.getContactById(participantId);
-        if (contact?.id?._serialized) participantId = contact.id._serialized;
+        try {
+            const contact = await client.getContactById(participantId);
+            if (contact?.id?._serialized && !contact.id._serialized.includes('@lid')) {
+                participantId = contact.id._serialized;
+            }
+        } catch (e) { console.warn(`[Group Add] LID fetch failed for ${participantId}:`, e.message); }
     }
 
     if (!participantId.includes('@')) participantId = `${participantId}@c.us`;
-    if (participantId.includes('@lid')) throw new Error('Could not resolve LID');
+    // If still LID, try one last time using getContact which is more thorough
+    if (participantId.includes('@lid')) {
+        try {
+            const contact = await client.getContactById(participantId);
+            const resolved = contact.id?._serialized;
+            if (resolved && !resolved.includes('@lid')) participantId = resolved;
+        } catch (e) {}
+    }
 
     const chat = await client.getChatById(groupId);
     if (!chat || !chat.isGroup) throw new Error('Invalid Group');
@@ -1290,6 +1305,14 @@ async function isUserAdmin(msg) {
     if (ADMIN_NUMBERS.includes(from)) {
         if (from === ADMIN_NUMBERS[0]) msg._resolvedMaster = true;
         return true;
+    }
+
+    // 3. Fallback: If 'from' is an LID, try matching against resolved ADMIN_NUMBERS
+    // This handles cases where the admin number was entered as '94xxx' but WhatsApp resolves to an LID
+    if (from.includes('@lid')) {
+        for (const admin of ADMIN_NUMBERS) {
+            if (admin.startsWith(from.split('@')[0])) return true;
+        }
     }
 
     return false;
@@ -1485,20 +1508,24 @@ client.on('message', async msg => {
                 const approval = pendingApprovals.get(adminState.studentId);
                 if (!approval) { adminStates.delete(from); return await sendWA(from, '❌ No pending approval found.'); }
 
-                try {
-                    const targetAddId = approval.contactId || approval.phone;
-                    await addStudentToGroup(group.id, targetAddId);
-                    await sendWA(from, `✅ Student *${approval.idNumber}* added to *${group.name}*.`);
-                    await sendWA(approval.contactId, `🎉 *APPROVED!* The student (${approval.idNumber}) has been added to the ${group.name} group.`);
+                approvalQueue = approvalQueue.then(async () => {
+                    try {
+                        const targetAddId = approval.contactId || approval.phone;
+                        await addStudentToGroup(group.id, targetAddId);
+                        await sendWA(from, `✅ Student *${approval.idNumber}* added to *${group.name}*.`);
+                        await sendWA(approval.contactId, `🎉 *APPROVED!* You have been added to the *${group.name}* class group.`);
 
-                    approval.status = 'Approved';
-                    approval.groupId = group.id;
-                    await upsertStudentData(approval, 'Approved');
-                    pendingApprovals.delete(adminState.studentId);
-                    adminStates.delete(from);
-                } catch (error) {
-                    await sendWA(from, `❌ Failed: ${error.message}`);
-                }
+                        approval.status = 'Approved';
+                        approval.groupId = group.id;
+                        await upsertStudentData(approval, 'Approved');
+                        pendingApprovals.delete(adminState.studentId);
+                        adminStates.delete(from);
+                    } catch (error) {
+                        await sendWA(from, `❌ Failed: ${error.message}`);
+                    }
+                }).catch(err => {
+                    console.error('[Approval Queue] Serialization error recovered:', err.message);
+                });
                 return;
             }
 
@@ -1525,21 +1552,21 @@ client.on('message', async msg => {
             }
 
             // Command: Reject Student
-            if (lowerBody.startsWith('reject ')) {
-                const parts = body.split(/\s+/);
-                const studentId = normalizeStudentId(parts[1]);
-                const reason = body.substring(body.indexOf(parts[1]) + parts[1].length).trim() || 'Details/Payment incorrect.';
+                approvalQueue = approvalQueue.then(async () => {
+                    try {
+                        const student = pendingApprovals.get(studentId);
+                        await sendWA(student.contactId, `❌ *REGISTRATION REJECTED*\n\nReason: ${reason}\n\nPlease fix and resubmit.`);
 
-                if (!pendingApprovals.has(studentId)) return await sendWA(from, '❌ Student not found in pending list.');
-
-                const student = pendingApprovals.get(studentId);
-                await sendWA(student.contactId, `❌ *REGISTRATION REJECTED*\n\nReason: ${reason}\n\nPlease fix and resubmit.`);
-
-                student.status = 'Rejected';
-                await upsertStudentData(student, 'Rejected');
-                pendingApprovals.delete(studentId);
-                return await sendWA(from, `✅ Student *${studentId}* rejected.`);
-            }
+                        student.status = 'Rejected';
+                        await upsertStudentData(student, 'Rejected');
+                        pendingApprovals.delete(studentId);
+                        return await sendWA(from, `✅ Student *${studentId}* rejected.`);
+                    } catch (e) {
+                        await sendWA(from, `❌ Rejection failed: ${e.message}`);
+                    }
+                }).catch(err => {
+                    console.error('[Approval Queue] Rejection serialization error recovered:', err.message);
+                });
 
             // Command: Status Search
             if (lowerBody.startsWith('status ')) {
@@ -1564,14 +1591,22 @@ client.on('message', async msg => {
                 if (!student.groupId) return await sendWA(from, '❌ Student is not recorded in any group.');
 
                 try {
+                    let targetJid = student.contactId;
+                    if (targetJid.includes('@lid')) {
+                        const contact = await client.getContactById(targetJid);
+                        if (contact?.id?._serialized && !contact.id._serialized.includes('@lid')) {
+                            targetJid = contact.id._serialized;
+                        }
+                    }
+
                     const chat = await client.getChatById(student.groupId);
                     const me = chat.participants.find(p => p.id._serialized === client.info.me._serialized || p.id.user === client.info.wid.user);
                     if (!me || !me.isAdmin) return await sendWA(from, "❌ Action failed: I am not an admin in that group.");
 
-                    await chat.removeParticipants([student.contactId]);
+                    await chat.removeParticipants([targetJid]);
 
                     // Notify the student
-                    await sendWA(student.contactId, `🚫 *ACCESS REMOVED*\n\nYou have been removed from the class group.\n\nReason: ${reason}\n\nIf you believe this is a mistake, please contact the tutor.`);
+                    await sendWA(student.contactId, `🚫 *ACCESS REMOVED*\n\nYou have been removed from the class group.\n\nReason: ${reason}\n\nIf you believe this is a mistake, please contact Sir.`);
 
                     // Update status in Sheets and memory
                     student.status = 'Kicked';
@@ -2064,8 +2099,12 @@ client.on('message', async msg => {
 
         // Safety reset to prevent the user from being permanently stuck in a corrupted state
         try {
+            const lang = getUserLang(from);
             resetUser(from);
-            await sendWA(from, `⚠️ *A system error occurred.* \nLet's try that again. Please type *menu* to restart.`);
+            const errorMsg = lang === LANG.SI 
+                ? `⚠️ සාදරයෙන් සමාවන්න, පද්ධතියේ දෝෂයක් සිදු වුණා. \nකරුණාකර *menu* ලෙස එවන්න.` 
+                : `⚠️ *A system error occurred.* \nPlease type *menu* to restart.`;
+            await sendWA(from, errorMsg);
         } catch (e) {
             console.error(`[Message Handler] Failed to send error recovery message:`, e.message);
         }
