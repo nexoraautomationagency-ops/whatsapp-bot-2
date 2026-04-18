@@ -85,10 +85,10 @@ const I18N = {
     [LANG.EN]: {
         'language.prompt': 'Welcome to *{{schoolName}}*! 👋 What language do you prefer?\n\n1️⃣ - English\n2️⃣ - Sinhala\n\n_↩️ (Type back for menu)_',
         'language.invalid': '❌ Please reply with 1 for English or 2 for Sinhala.',
-        'menu.text': 'Welcome to *{{schoolName}}*!\n\nReply with a number:\n\n1️⃣ - New admission\n2️⃣ - Pay monthly fees\n3️⃣ - Send a message to Sir/Admin\n4️⃣ - Change language\n\n_Type menu anytime to restart_',
+        'menu.text': 'Welcome to *{{schoolName}}*! 👋\n\nReply with a number:\n\n1️⃣ - New admission 🎓\n2️⃣ - Pay monthly fees 💰\n3️⃣ - Send a message to Sir ✉️\n4️⃣ - Change language 🌐\n\n_Type menu anytime to restart_',
         'start.newAdmissionPrompt': '👤 *Name:* Let’s register you. What is your *full name*?\n\n_🔙 (Type **back** to edit | **menu** for exit)_',
         'start.monthlyPrompt': '🆔 *ID:* Please send your *Student ID* (e.g., 310001).\n\n_🔙 (Type **back** to edit | **menu** for exit)_',
-        'start.complainPrompt': '✍️ *Message:* Type your message below. I will send it directly to Sir/Admin.',
+        'start.complainPrompt': '✍️ *Message:* Type your message below. I will send it directly to Sir.',
         'start.cancelled': '❌ Session cancelled.\n\n_Type menu anytime to start over._',
         'start.pickMenuOption': '❌ Please reply with 1, 2, 3, or 4 from the menu.',
         'language.changed': '✅ Language updated!',
@@ -98,22 +98,22 @@ const I18N = {
         'school.invalid': '❌ Please enter a valid school name.',
         'email.ask': '📩 *Email:* What is your email address? [back: 🔙]',
         'email.invalid': '❌ Invalid email. Please try again.',
-        'phone.ask': '📱 *WhatsApp:* What number should we add to the group? [back: 🔙]',
+        'phone.ask': '📞 *WhatsApp:* What number should we add to the group? [back: 🔙]',
         'phone.invalid': '❌ Invalid number. Try again.',
         'grade.ask': '{{idLine}}🎓 *Grade:* What Grade are you in (6-11)? [back: 🔙]',
         'month.confirmed': '✅ Saved for *{{resolved}}*.',
         'grade.invalid': '❌ Please enter a grade between 6 and 11.',
-        'month.ask': '🗓️ *Month:* Which month are you paying for (e.g., April)? [back: 🔙]',
+        'month.ask': '🗓️ *Month:* Which month are you paying for? (e.g., April) [back: 🔙]',
         'month.invalidUnrecognized': '❌ Invalid month. Try again.',
-        'tutes.ask': '📦 *Tutes:* Do you need tutes delivered? (yes/no) [back: 🔙]',
+        'tutes.ask': '✅ Saved for *{{resolved}}*.\n📦 *Tutes:* Do you need tutes delivered? (yes/no) [back: 🔙]',
         'yesNo.invalid': '❌ Just reply with "yes" or "no" please!',
         'address.ask': '📍 *Address:* Please type your full home address. [back: 🔙]',
-        'fee.prompt': '💳 *Payment:* Fee: LKR {{fee}}\n\n{{bankLabel}}\n\n📸 Please upload a photo of the *bank slip* here. [back: 🔙]',
+        'fee.prompt': '💸 *Fee:* LKR {{fee}}\n\n{{bankLabel}}\n\n📸 Please upload a photo of the *bank slip* here. [back: 🔙]',
         'receipt.needMedia': '❌ Please send the bank slip as an image or PDF.',
         'receipt.uploading': '⏳ _Uploading slip..._',
         'receipt.uploadFail': '⚠️ Upload failed. Please send a clear JPG/PNG/PDF file again.',
         'receipt.uploadError': '⚠️ Error processing your slip.',
-        'confirm.preview': '📝 *Check details:*\n\n**Name:** {{name}}\n**School:** {{school}}\n**ID:** {{idNumber}}\n**Month:** {{month}}\n**Grade:** {{grade}}\n**Tutes:** {{tutes}}{{addressLine}}\n\n_Reply "yes" to submit, or type "menu" for exit._',
+        'confirm.preview': '📝 *Check details:*\n\n*Name:* {{name}}\n*School:* {{school}}\n*ID:* {{idNumber}}\n*Month:* {{month}}\n*Grade:* {{grade}}\n*Tutes:* {{tutes}}{{addressLine}}\n\n_Reply "yes" to submit, or type "menu" for exit._',
         'submit.sending': '⏳ Submitting details...',
         'submit.done': '✅ Done! Your details are sent for approval. You will be added to groups soon.',
         'confirm.reply': 'Reply "yes" to confirm, or "menu" to cancel.',
@@ -123,13 +123,13 @@ const I18N = {
         'month.invalid': '❌ Not a valid month.',
         'oldId.notFound': '❌ ID *{{id}}* not found. Are you sure it’s correct?',
         'oldAddress.ask': '📍 *Address:* What is your delivery address?',
-        'amount.prompt': '💳 *Payment:* Due: LKR {{fee}}\n\n{{bankLabel}}\n\n📸 Please upload your bank slip here.',
-        'complain.done': '✅ Message sent to Sir/Admin. Thank you!',
+        'amount.prompt': '💸 *Amount Due:* LKR {{fee}}\n\n{{bankLabel}}\n\n📸 Please upload your bank slip here.',
+        'complain.done': '✅ Message sent to Sir. Thank you!',
         'backMenu.title': '🔙 **EDIT MENU**\nSelect what you want to change:\n\n{{options}}\n\n_Type the number, or "menu" to exit._',
         'back.new.name': '👤 *Name:* Type your full name:',
         'back.new.school': '🏫 *School:* Type your school name:',
         'back.new.email': '📩 *Email:* Type your email address:',
-        'back.new.phone': '📱 *WhatsApp:* Type your WhatsApp number:',
+        'back.new.phone': '📞 *WhatsApp:* Type your WhatsApp number:',
         'back.new.grade': '🎓 *Grade:* Enter grade (6-11):',
         'back.new.month': '🗓️ *Month:* Enter month (e.g. April):',
         'back.new.tutes': '📦 *Tutes:* Need delivery? (yes/no):',
@@ -142,10 +142,10 @@ const I18N = {
     [LANG.SI]: {
         'language.prompt': '*{{schoolName}}* එකට සාදරයෙන් පිළිගන්නවා! 👋 ඔයා කැමති language එක select කරන්න:\n\n1️⃣ - English\n2️⃣ - Sinhala\n\n_↩️ (මුලට යන්න back එවන්න)_',
         'language.invalid': '❌ වැරදි selection එකක්. English වලට 1 හෝ Sinhala වලට 2 කියලා reply කරන්න.',
-        'menu.text': '*{{schoolName}}* එකට සාදරයෙන් පිළිගන්නවා!\n\nඔයාට අවශ්‍ය දේ පහත options වලින් select කරන්න:\n\n1️⃣ - New admission\n2️⃣ - Monthly fees pay කරන්න\n3️⃣ - Sir/Admin ට message එකක් එවන්න\n4️⃣ - Language එක change කරන්න\n\n_ඕනෑම වෙලාවක menu කියලා එවන්න_',
+        'menu.text': '*{{schoolName}}* එකට සාදරයෙන් පිළිගන්නවා! 👋\n\nඔයාට අවශ්‍ය දේ පහත options වලින් select කරන්න:\n\n1️⃣ - New admission 🎓\n2️⃣ - Monthly fees pay කරන්න 💰\n3️⃣ - Sir ට message එකක් එවන්න ✉️\n4️⃣ - Language එක change කරන්න 🌐\n\n_ඕනෑම වෙලාවක menu කියලා එවන්න_',
         'start.newAdmissionPrompt': '👤 *Name:* Registration වැඩ පටන් ගමු. ඔයාගේ *full name* එක එවන්න:\n\n_🔙 (වෙනස් කරන්න **back** එවන්න | ඉවත් වෙන්න **menu** එවන්න)_',
         'start.monthlyPrompt': '🆔 *ID:* Payment එක කරන්න ඔයාගේ *Student ID* එක එවන්න (e.g., 310001):\n\n_🔙 (වෙනස් කරන්න **back** එවන්න | ඉවත් වෙන්න **menu** එවන්න)_',
-        'start.complainPrompt': '✍️ *Message:* ඔයාට කියන්න තියෙන දේ එවන්න. අපි ඒක Sir/Admin ට forward කරන්නම්.',
+        'start.complainPrompt': '✍️ *Message:* ඔයාට කියන්න තියෙන දේ එවන්න. අපි ඒක Sir ට forward කරන්නම්.',
         'start.cancelled': '❌ Session එක cancel කළා.\n\n_ආයෙත් පටන් ගන්න ඕන වුණාම menu කියලා එවන්න._',
         'start.pickMenuOption': '❌ පහත options වලින් එකක් (1, 2, 3, හෝ 4) select කරන්න.',
         'language.changed': '✅ Language එක සාර්ථකව update කළා!',
@@ -155,22 +155,22 @@ const I18N = {
         'school.invalid': '❌ කරුණාකර නිවැරදි school name එකක් එවන්න.',
         'email.ask': '📩 *Email:* ඔයාගේ email address එක එවන්න: [back: 🔙]',
         'email.invalid': '❌ Email address එක වැරදියි. ආයෙත් try කරන්න.',
-        'phone.ask': '📱 *WhatsApp:* Group එකට add කරන්න ඕන WhatsApp number එක එවන්න: [back: 🔙]',
+        'phone.ask': '📞 *WhatsApp:* Group එකට add කරන්න ඕන WhatsApp number එක එවන්න: [back: 🔙]',
         'phone.invalid': '❌ WhatsApp number එක වැරදියි. නිවැරදි number එකක් එවන්න.',
         'grade.ask': '{{idLine}}🎓 *Grade:* ඔයා ඉගෙන ගන්නේ කීවෙනි Grade එකේද (6-11)? [back: 🔙]',
         'month.confirmed': '✅ *{{resolved}}* මාසය සඳහා confirm කළා.',
         'grade.invalid': '❌ වැරදියි. Grade එක 6 සහ 11 අතර අගයක් එවන්න.',
         'month.ask': '🗓️ *Month:* ඔයා payment එක කරන්නේ මොන month එකටද (Eg: April)? [back: 🔙]',
         'month.invalidUnrecognized': '❌ Month එක වැරදියි. නිවැරදි මාසයක් එවන්න.',
-        'tutes.ask': '📦 *Tutes:* ඔයාට tutes ගෙදරටම ගෙන්න ගන්න අවශ්‍යද? (yes/no) [back: 🔙]',
+        'tutes.ask': '✅ *{{resolved}}* මාසය තෝරාගත්තා.\n📦 *Tutes:* ඔයාට tutes ගෙදරටම ගෙන්න ගන්න අවශ්‍යද? (yes/no) [back: 🔙]',
         'yesNo.invalid': '❌ කරුණාකර "yes" හෝ "no" කියලා විතරක් reply කරන්න.',
         'address.ask': '📍 *Address:* Tutes එවන්න ඕන full home address එක එවන්න: [back: 🔙]',
-        'fee.prompt': '💳 *Payment:* මුදල: LKR {{fee}}\n\n{{bankLabel}}\n\n📸 කරුණාකර payment එක කරලා *receipt* එක මෙතනට upload කරන්න. [back: 🔙]',
+        'fee.prompt': '💸 *Payment:* මුදල: LKR {{fee}}\n\n{{bankLabel}}\n\n📸 කරුණාකර payment එක කරලා *receipt* එක මෙතනට upload කරන්න. [back: 🔙]',
         'receipt.needMedia': '❌ කරුණාකර receipt එක image එකක් හෝ PDF එකක් විදිහට එවන්න.',
         'receipt.uploading': '⏳ _Receipt එක upload වෙනවා..._',
         'receipt.uploadFail': '⚠️ Upload වෙන්නෙ නැහැ. කරුණාකර පැහැදිලි photo එකක් ආයෙත් එවන්න.',
         'receipt.uploadError': '⚠️ Receipt එක process කිරීමේදී error එකක් වුණා.',
-        'confirm.preview': '📝 *ඔයාගේ details සියල්ල මෙන්න:*\n\n**Name:** {{name}}\n**School:** {{school}}\n**ID:** {{idNumber}}\n**Month:** {{month}}\n**Grade:** {{grade}}\n**Tutes:** {{tutes}}{{addressLine}}\n\n_ඉදිරියට යන්න "yes" එවන්න, නැතිනම් "menu" එවන්න._',
+        'confirm.preview': '📝 *ඔයාගේ details සියල්ල මෙන්න:*\n\n*Name:* {{name}}\n*School:* {{school}}\n*ID:* {{idNumber}}\n*Month:* {{month}}\n*Grade:* {{grade}}\n*Tutes:* {{tutes}}{{addressLine}}\n\n_ඉදිරියට යන්න "yes" එවන්න, නැතිනම් "menu" එවන්න._',
         'submit.sending': '⏳ ඔයාගේ details ටික යවනවා. කරුණාකර රැඳී සිටින්න...',
         'submit.done': '✅ ඔයාගේ details ටික admin ට ලැබුණා. Admin approve කළාට පස්සේ ඔයාව groups වලට add කරයි.',
         'confirm.reply': 'ඉදිරියට යන්න "yes" හෝ ඉවත් වෙන්න "menu" කියලා reply කරන්න.',
@@ -180,13 +180,13 @@ const I18N = {
         'month.invalid': '❌ නිවැරදි month එකක් නෙවෙයි. කරුණාකර නිවැරදි මාසයක් එවන්න.',
         'oldId.notFound': '❌ ID *{{id}}* record වල නැහැ. කරුණාකර ID එක නිවැරදි දැයි බලන්න.',
         'oldAddress.ask': '📍 *Address:* Tutes එවන්න ඕන delivery address එක එවන්න:',
-        'amount.prompt': '💳 *Payment:* භාවිත කළ යුතු මුදල: LKR {{fee}}\n\n{{bankLabel}}\n\n📸 කරුණාකර ඔයාගේ receipt එක මෙතනට upload කරන්න.',
-        'complain.done': '✅ ඔයාගේ message එක සාර්ථකව Sir/Admin ට forward කළා. ස්තූතියි!',
+        'amount.prompt': '💸 *Payment:* භාවිත කළ යුතු මුදල: LKR {{fee}}\n\n{{bankLabel}}\n\n📸 කරුණාකර ඔයාගේ receipt එක මෙතනට upload කරන්න.',
+        'complain.done': '✅ ඔයාගේ message එක සාර්ථකව Sir ට forward කළා. ස්තූතියි!',
         'backMenu.title': '🔙 **EDIT MENU**\nඔයාට වෙනස් කරන්න ඕන detail එක select කරන්න:\n\n{{options}}\n\n_අදාළ number එක reply කරන්න, නැතිනම් "menu" එවන්න._',
         'back.new.name': '👤 *Name:* ඔයාගේ full name එක එවන්න:',
         'back.new.school': '🏫 *School:* ඔයාගේ school name එක එවන්න:',
         'back.new.email': '📩 *Email:* ඔයාගේ email address එක එවන්න:',
-        'back.new.phone': '📱 *WhatsApp:* ඔයාගේ WhatsApp number එක එවන්න:',
+        'back.new.phone': '📞 *WhatsApp:* ඔයාගේ WhatsApp number එක එවන්න:',
         'back.new.grade': '🎓 *Grade:* ඔයාගේ Grade එක (6-11) එවන්න:',
         'back.new.month': '🗓️ *Month:* අදාළ month එක (Eg: April) එවන්න:',
         'back.new.tutes': '📦 *Tutes:* ඔයාට tutes අවශ්‍යද? (yes/no):',
@@ -1669,7 +1669,7 @@ client.on('message', async msg => {
             }
             const previous = userData.get(from) || {};
             startLanguageSelectionSession(from, previous);
-            return await sendWA(from, t(LANG.EN, 'language.prompt'));
+            return await sendWA(from, t(LANG.EN, 'language.prompt', { schoolName: SCHOOL_NAME }));
         }
         if (lowerBody === 'cancel') {
             const savedLang = userLangPref.get(from);
@@ -1684,7 +1684,7 @@ client.on('message', async msg => {
             const previous = userData.get(from) || {};
             const lang = getUserLang(from);
             startLanguageSelectionSession(from, previous);
-            const cancelMsg = `${t(lang, 'start.cancelled')}\n\n${t(LANG.EN, 'language.prompt')}`;
+            const cancelMsg = `${t(lang, 'start.cancelled')}\n\n${t(LANG.EN, 'language.prompt', { schoolName: SCHOOL_NAME })}`;
             return await sendWA(from, cancelMsg);
         }
 
@@ -1703,7 +1703,7 @@ client.on('message', async msg => {
                 return await sendMainMenu(from);
             }
             startLanguageSelectionSession(from, { contactId });
-            return await sendWA(from, t(LANG.EN, 'language.prompt'));
+            return await sendWA(from, t(LANG.EN, 'language.prompt', { schoolName: SCHOOL_NAME }));
         }
 
         const state = userStates.get(from);
@@ -1712,7 +1712,7 @@ client.on('message', async msg => {
 
         if (!data.lang && state !== STATES.LANGUAGE) {
             userStates.set(from, STATES.LANGUAGE);
-            return await sendWA(from, t(LANG.EN, 'language.prompt'));
+            return await sendWA(from, t(LANG.EN, 'language.prompt', { schoolName: SCHOOL_NAME }));
         }
 
         // Command: Back
