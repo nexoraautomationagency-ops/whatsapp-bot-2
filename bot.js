@@ -1687,13 +1687,12 @@ client.on('message', async msg => {
         data.lastSeen = Date.now();
 
 
-        // Command: Back
         if (lowerBody === 'back') {
             if (state === STATES.CONFIRM) return await sendWA(from, '❌ Cannot go back after receipt upload.');
 
             let options = [];
             if (data.isNewStudent) {
-                options = [
+                const all = [
                     '1. Name',
                     '2. School',
                     '3. Email',
@@ -1702,13 +1701,25 @@ client.on('message', async msg => {
                     '6. Month',
                     '7. Tute Choice'
                 ];
+                if (state === STATES.SCHOOL) options = all.slice(0, 1);
+                else if (state === STATES.EMAIL) options = all.slice(0, 2);
+                else if (state === STATES.PHONE) options = all.slice(0, 3);
+                else if (state === STATES.GRADE) options = all.slice(0, 4);
+                else if (state === STATES.MONTHS) options = all.slice(0, 5);
+                else if (state === STATES.TUTES_OPTION) options = all.slice(0, 6);
+                else if (state === STATES.ADDRESS || state === STATES.RECEIPT) options = all;
             } else {
-                options = [
+                const all = [
                     '1. Student ID',
-                    '2. Month',
-                    '3. Tute Choice'
+                    '2. Tute Choice',
+                    '3. Month'
                 ];
+                if (state === STATES.OLD_CONFIRM || state === STATES.OLD_TUTES_OPTION) options = [all[0]];
+                else if (state === STATES.ADDRESS || state === STATES.OLD_MONTH) options = [all[0], all[1]];
+                else if (state === STATES.RECEIPT) options = all;
             }
+
+            if (options.length === 0) return await sendWA(from, '❌ Nowhere to go back to yet.');
 
             userStates.set(from, STATES.BACK_MENU);
             return await sendWA(from, `🔙 *EDIT MENU*\nWhere would you like to go back to?\n\n${options.join('\n')}\n\n_Type the number to jump, or *cancel* to exit._`);
@@ -1992,10 +2003,10 @@ client.on('message', async msg => {
                     }
                 } else {
                     switch (choice) {
-                        case 1: userStates.set(from, STATES.OLD_ID); return await sendWA(from, '🆔 Please enter your *Student ID* (e.g. 310001).');
-                        case 2: userStates.set(from, STATES.OLD_MONTH); return await sendWA(from, '🗓️ Which *month* (e.g. April)?');
-                        case 3: userStates.set(from, STATES.OLD_TUTES_OPTION); return await sendWA(from, '📦 Include *tutes* (yes/no)?');
-                        default: return await sendWA(from, '❌ Invalid choice. Please type a number (1-3) from the menu.');
+                        case 1: userStates.set(from, STATES.OLD_ID); return await sendWA(from, '🆔 Please enter your *Student ID* or *Phone Number*.');
+                        case 2: userStates.set(from, STATES.OLD_TUTES_OPTION); return await sendWA(from, '📦 Include *tutes* (yes/no)?');
+                        case 3: userStates.set(from, STATES.OLD_MONTH); return await sendWA(from, '🗓️ Which *month* (e.g. April)?');
+                        default: return await sendWA(from, `❌ Invalid choice. Please type a number (1-${data.isNewStudent ? '7' : '3'}) from the menu.`);
                     }
                 }
             }
