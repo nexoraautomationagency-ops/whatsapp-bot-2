@@ -177,7 +177,8 @@ function saveSessions() {
                     userData: Array.from(userData.entries()),
                     userStates: Array.from(userStates.entries()),
                     userHistory: Array.from(userHistory.entries()),
-                    adminStates: Array.from(adminStates.entries())
+                    adminStates: Array.from(adminStates.entries()),
+                    pendingApprovals: Array.from(pendingApprovals.entries())
                 };
                 fs.writeFileSync(SESSION_FILE, JSON.stringify(data, null, 2));
             } catch (error) {
@@ -203,7 +204,8 @@ function saveSessionsNow() {
             userData: Array.from(userData.entries()),
             userStates: Array.from(userStates.entries()),
             userHistory: Array.from(userHistory.entries()),
-            adminStates: Array.from(adminStates.entries())
+            adminStates: Array.from(adminStates.entries()),
+            pendingApprovals: Array.from(pendingApprovals.entries())
         };
         fs.writeFileSync(SESSION_FILE, JSON.stringify(data, null, 2));
         sessionSavePending = false;
@@ -225,6 +227,7 @@ function loadSessions() {
         if (data.userStates) data.userStates.forEach(([k, v]) => userStates.set(k, v));
         if (data.userHistory) data.userHistory.forEach(([k, v]) => userHistory.set(k, v));
         if (data.adminStates) data.adminStates.forEach(([k, v]) => adminStates.set(k, v));
+        if (data.pendingApprovals) data.pendingApprovals.forEach(([k, v]) => pendingApprovals.set(k, v));
 
         if (userStates.size > 0) {
             console.log(`[Persistence] Restored ${userStates.size} active sessions.`);
@@ -1435,7 +1438,12 @@ client.on('message', async msg => {
                         const targetAddId = approval.contactId || approval.phone;
                         await addStudentToGroup(group.id, targetAddId);
                         await sendWA(from, `✅ Student *${approval.idNumber}* added to *${group.name}*.`);
-                        await sendWA(approval.contactId, `🎉 *APPROVED!* You have been added to the *${group.name}* class group.`);
+                        
+                        // Robust notification with fallback to phone JID
+                        const notifyJid = approval.contactId || (approval.phone ? `${approval.phone.replace(/\D/g, '')}@c.us` : null);
+                        if (notifyJid) {
+                            await sendWA(notifyJid, `🎉 *APPROVED!* You have been added to the *${group.name}* class group.`).catch(e => console.warn(`Failed to notify student ${approval.idNumber}:`, e.message));
+                        }
 
                         approval.status = 'Approved';
                         approval.groupId = group.id;
