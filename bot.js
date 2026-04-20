@@ -1719,31 +1719,16 @@ client.on('message', async msg => {
 
             case STATES.START:
                 if (body === '1' || lowerBody.includes('admission')) {
-                    // Duplicate Check: Use resolved contactId (JID) instead of raw 'from' which might be an LID
-                    const userJid = data.contactId || from;
-                    const cleanedPhone = cleanPhoneNumber(userJid.split('@')[0]);
-                    const existing = Array.from(registeredStudentIds.values()).find(s => cleanPhoneNumber(s.phone) === cleanedPhone);
-                    
-                    if (existing) {
-                        return await sendWA(from, `👋 Hi *${existing.name}*!\n\nIt looks like you are already registered with ID: *${existing.idNumber}*.\n\nTo pay for a new month, please use option *2️⃣ - Pay monthly fees* from the main menu.\n\n_If you need to register a DIFFERENT person, please type *continue*._`);
-                    }
-
                     pushHistory(from, state, data);
                     data.isNewStudent = true;
                     userStates.set(from, STATES.NAME);
                     return await sendWA(from, '🤝 Welcome! Please enter your *full name* to start.\n\n🔙 _Type *back* to edit details | *menu* to exit_');
                 }
-                // Allow bypassing duplicate check
-                if (lowerBody === 'continue' && userHistory.get(from)?.slice(-1)[0]?.state === STATES.START) {
-                    data.isNewStudent = true;
-                    userStates.set(from, STATES.NAME);
-                    return await sendWA(from, '🤝 Continuing with new registration. Please enter your *full name*.');
-                }
                 if (body === '2' || lowerBody.includes('monthly')) {
                     pushHistory(from, state, data);
                     data.isNewStudent = false;
                     userStates.set(from, STATES.OLD_ID);
-                    return await sendWA(from, '🆔 Please enter your *Student ID* (e.g. 310001).\n\n🔙 _Type *back* to edit details | *menu* to exit_');
+                    return await sendWA(from, '🆔 Please enter your *Student ID* or *Phone Number*.\n\n🔙 _Type *back* to edit details | *menu* to exit_');
                 }
                 if (body === '3' || lowerBody.includes('complain')) {
                     pushHistory(from, state, data);
@@ -1776,9 +1761,20 @@ client.on('message', async msg => {
             case STATES.PHONE:
                 if (!isValidPhone(body)) return await sendWA(from, '❌ Invalid phone. Please enter a 10-digit number starting with 0 (e.g., 0771234567).');
                 pushHistory(from, state, data);
-                data.phone = cleanPhoneNumber(body);
+                const cleanedInput = cleanPhoneNumber(body);
+                data.phone = cleanedInput;
+
+                // Recognition logic: Search for existing students with this number
+                const matches = Array.from(registeredStudentIds.values()).filter(s => cleanPhoneNumber(s.phone) === cleanedInput);
+                let msgText = `Grade (6-11)?\n\n🔙 _Type *back* to edit details_`;
+                
+                if (matches.length > 0) {
+                    const studentNames = matches.map(m => m.name).join(', ');
+                    msgText = `🔍 *Note:* This phone number is already registered for: *${studentNames}*.\n\nIf you are registering *another student*, please continue.\n\nGrade (6-11)?\n\n🔙 _Type *back* to edit details_`;
+                }
+
                 userStates.set(from, STATES.GRADE);
-                return await sendWA(from, `Grade (6-11)?\n\n🔙 _Type *back* to edit details_`);
+                return await sendWA(from, msgText);
 
             case STATES.GRADE: {
                 const grade = parseInt(body, 10);
@@ -1923,15 +1919,16 @@ client.on('message', async msg => {
                             nid = existing.idNumber;
                             await sendWA(from, `🔍 *ID Found!* Your registered ID is *${nid}* (${existing.name}).`);
                         } else if (matches.length > 1) {
-                            let list = `🔍 *Multiple IDs found for this phone:*\n\n`;
-                            matches.forEach(m => list += `• ${m.idNumber} (${m.name})\n`);
-                            list += `\n_Please type your specific ID to continue._`;
+                            let list = `🔍 *Multiple students found for this phone:*\n\n`;
+                            const sortedMatches = matches.sort((a, b) => a.idNumber.localeCompare(b.idNumber));
+                            sortedMatches.forEach(m => list += `• *${m.idNumber}* - ${m.name}\n`);
+                            list += `\n_Please type the specific *Student ID* you want to pay for to continue._`;
                             return await sendWA(from, list);
                         }
                     }
                 }
 
-                if (!existing) return await sendWA(from, `❌ No student found with ID or Phone: *${body}*.\n\n_If you are a new student, type *menu* and choose option 1. For help, contact Sir._`);
+                if (!existing) return await sendWA(from, `❌ No student found with ID or Phone: *${body}*.\n\nIf you are a new student, please type *menu* and choose option 1 to get an admission, or contact Sir.`);
                 pushHistory(from, state, data);
                 Object.assign(data, existing);
                 data.idNumber = nid;
@@ -1947,8 +1944,8 @@ client.on('message', async msg => {
                     return await sendWA(from, '📦 Include *tutes* (yes/no)?\n\n🔙 _Type *back* to edit details_');
                 }
                 if (lowerBody === 'no') {
-                    resetUser(from);
-                    return await sendWA(from, '👋 Session cancelled. Type *menu* to start again.');
+                    userStates.set(from, STATES.OLD_ID);
+                    return await sendWA(from, '🔍 Please enter your *Student ID* or *Phone Number* again.');
                 }
                 return await sendWA(from, 'Reply "yes" or "back".');
 
