@@ -76,153 +76,14 @@ const MESSAGE_RATE_MAX = 10;
 const ADMIN_BROADCAST_DELAY_MS = 800;
 const OUTBOUND_DELAY_MS = 250;
 
-const LANG = {
-    EN: 'en',
-    SI: 'si'
-};
-
-const I18N = {
-    [LANG.EN]: {
-        'language.prompt': 'Welcome to *{{schoolName}}*! 👋\n\nWhat language do you prefer?\n\n1️⃣ - English\n2️⃣ - Sinhala\n\n_↩️ (Type back for menu)_',
-        'language.invalid': '❌ Invalid selection. Please reply with 1 for English or 2 for Sinhala.',
-        'menu.text': 'Welcome to *{{schoolName}}*! 👋\n\nHow can I help you today? Reply with a number:\n\n1️⃣ - New Admission 🎓\n2️⃣ - Pay Monthly Fees 💰\n3️⃣ - Message to Sir ✉️\n4️⃣ - Change Language 🌐\n\n_Type menu anytime to restart_',
-        'start.newAdmissionPrompt': '👤 *Name:* Let’s get you registered. What is your *full name*?\n\n_🔙 (Type **back** to edit | **menu** for exit)_',
-        'start.monthlyPrompt': '🆔 *Student ID:* Please send your *Student ID* (e.g., 310001) to start the payment process.\n\n_🔙 (Type **back** to edit | **menu** for exit)_',
-        'start.complainPrompt': '✉️ *Message:* Please type your message below. I will send it directly to Sir.',
-        'start.cancelled': '❌ Session cancelled.\n\n_Type menu anytime to start over._',
-        'start.pickMenuOption': '❌ Please select a valid option (1, 2, 3, or 4) from the menu.',
-        'language.changed': '✅ Language updated successfully!',
-        'start.cannotBackAfterReceipt': '❌ Sorry, you cannot edit details after uploading the bank slip.',
-        'name.invalid': '❌ Please enter a valid full name.',
-        'school.askAfterName': '🏫 *School:* What is the name of your school? [back: 🔙]',
-        'school.invalid': '❌ Please enter a valid school name.',
-        'email.ask': '📩 *Email:* What is your email address? [back: 🔙]',
-        'email.invalid': '❌ That doesn’t look like a valid email. Please try again.',
-        'phone.ask': '📞 *WhatsApp:* Which number should we use to add you to the class group? [back: 🔙]',
-        'phone.invalid': '❌ Please enter a valid WhatsApp number.',
-        'grade.ask': '{{idLine}}🎓 *Grade:* Which Grade are you in (6-11)? [back: 🔙]',
-        'month.confirmed': '✅ Saved for *{{resolved}}*.',
-        'grade.invalid': '❌ Please enter a grade between 6 and 11.',
-        'month.ask': '🗓️ *Month:* Which month are you paying for? (e.g., April) [back: 🔙]',
-        'month.invalidUnrecognized': '❌ I couldn’t recognize that month. Please try again.',
-        'tutes.ask': '✅ Saved for *{{resolved}}*.\n📦 *Tutes:* Do you need tutes delivered to your home? (yes/no) [back: 🔙]',
-        'yesNo.invalid': '❌ Please reply with "yes" or "no".',
-        'address.ask': '📍 *Address:* Please type your *full home address* for delivery. [back: 🔙]',
-        'fee.prompt': '💸 *Payment Details:*\n\nFee: *LKR {{fee}}*\n\n{{bankLabel}}\n\n📸 Please upload a photo of your *bank slip* here once you are done. [back: 🔙]',
-        'receipt.needMedia': '❌ Please send the bank slip as an image or a PDF.',
-        'receipt.uploading': '⏳ _Uploading your slip..._',
-        'receipt.uploadFail': '⚠️ Upload failed. Please try sending a clear JPG/PNG or PDF again.',
-        'receipt.uploadError': '⚠️ Something went wrong while processing your slip. Please try again.',
-        'confirm.preview': '📝 *Registration Preview:*\n\n*Name:* {{name}}\n*School:* {{school}}\n*ID:* {{idNumber}}\n*Month:* {{month}}\n*Grade:* {{grade}}\n*Tutes:* {{tutes}}{{addressLine}}\n\n_Reply "yes" to submit for approval, or "menu" to cancel._',
-        'submit.sending': '⏳ Sending your details to Sir...',
-        'submit.done': '✅ Registration Successful! Your details have been sent. You will be added to the groups once approved.',
-        'confirm.reply': 'Please reply with "yes" to confirm or "menu" to cancel.',
-        'oldConfirm.prompt': '👋 Welcome back, *{{name}}*!\n\nGrade: {{grade}}\nWhatsApp: {{phone}}\n\n*Is this correct? Reply "yes" or "no".* [back: 🔙]',
-        'oldTutes.ask': '📦 *Tutes:* Do you need tutes delivered for this month? (yes/no) [back: 🔙]',
-        'oldConfirm.reply': 'Please reply with "yes" or "back".',
-        'month.invalid': '❌ Invalid month. Please try again.',
-        'oldId.notFound': '❌ Sorry, ID *{{id}}* was not found. Please check and try again.',
-        'oldAddress.ask': '📍 *Address:* What is your delivery address?',
-        'amount.prompt': '💸 *Total Due:* LKR {{fee}}\n\n{{bankLabel}}\n\n📸 Please upload your bank slip here.',
-        'complain.done': '✅ Message sent to Sir. Thank you!',
-        'backMenu.title': '🔙 *EDIT DETAILS*\n\nSelect what you want to change:\n\n{{options}}\n\n_Send the number, or "menu" to exit._',
-        'back.new.name': '👤 *Name:* Type your full name:',
-        'back.new.school': '🏫 *School:* Type your school name:',
-        'back.new.email': '📩 *Email:* Type your email address:',
-        'back.new.phone': '📞 *WhatsApp:* Type your WhatsApp number:',
-        'back.new.grade': '🎓 *Grade:* Type grade (6-11):',
-        'back.new.month': '🗓️ *Month:* Type the month (e.g. April):',
-        'back.new.tutes': '📦 *Tutes:* Need delivery? (yes/no):',
-        'back.new.invalid': '❌ Invalid choice. Please select 1-7.',
-        'back.old.id': '🆔 *ID:* Type your Student ID:',
-        'back.old.month': '🗓️ *Month:* Type the month (e.g. April):',
-        'back.old.tutes': '📦 *Tutes:* Need delivery? (yes/no):',
-        'back.old.invalid': '❌ Invalid choice. Please select 1-3.'
-    },
-    [LANG.SI]: {
-        'language.prompt': '*{{schoolName}}* එකට සාදරයෙන් පිළිගන්නවා! 👋\n\nඔයා කැමති language එක select කරන්න:\n\n1️⃣ - English\n2️⃣ - Sinhala\n\n_↩️ (මුලට යන්න back එවන්න)_',
-        'language.invalid': '❌ වැරදි selection එකක්. English වලට 1 හෝ Sinhala වලට 2 එවන්න.',
-        'menu.text': '*{{schoolName}}* එකට සාදරයෙන් පිළිගන්නවා! 👋\n\nඔයාට අවශ්‍ය දේ පහත options වලින් select කරන්න:\n\n1️⃣ - New Admission 🎓\n2️⃣ - Monthly Fees pay කරන්න 💰\n3️⃣ - Sir ට message එකක් එවන්න ✉️\n4️⃣ - Language එක වෙනස් කරන්න 🌐\n\n_ඕනෑම වෙලාවක menu කියලා එවන්න_',
-        'start.newAdmissionPrompt': '👤 *Name:* Registration වැඩ පටන් ගමු. ඔයාගේ *full name* එක එවන්න:\n\n_🔙 (වෙනස් කරන්න **back** එවන්න | ඉවත් වෙන්න **menu** එවන්න)_',
-        'start.monthlyPrompt': '🆔 *Student ID:* Payment එක කරන්න ඔයාගේ *Student ID* එක එවන්න (e.g., 310001):\n\n_🔙 (වෙනස් කරන්න **back** එවන්න | ඉවත් වෙන්න **menu** එවන්න)_',
-        'start.complainPrompt': '✉️ *Message:* ඔයාට කියන්න තියෙන දේ එවන්න. මම ඒක Sir ට forward කරන්නම්.',
-        'start.cancelled': '❌ Session එක cancel කළා.\n\n_ආයෙත් පටන් ගන්න ඕන වුණාම menu කියලා එවන්න._',
-        'start.pickMenuOption': '❌ කරුණාකර නිවැරදි option එකක් (1, 2, 3, හෝ 4) select කරන්න.',
-        'language.changed': '✅ Language එක සාර්ථකව update කළා!',
-        'start.cannotBackAfterReceipt': '❌ Receipt එක upload කළාට පස්සේ details වෙනස් කරන්න බැහැ.',
-        'name.invalid': '❌ නම වැරදියි. ඔයාගේ full name එක එවන්න.',
-        'school.askAfterName': '🏫 *School:* ඔයාගේ school name එක එවන්න: [back: 🔙]',
-        'school.invalid': '❌ කරුණාකර නිවැරදි school name එකක් එවන්න.',
-        'email.ask': '📩 *Email:* ඔයාගේ email address එක එවන්න: [back: 🔙]',
-        'email.invalid': '❌ Email address එක වැරදියි. ආයෙත් try කරන්න.',
-        'phone.ask': '📞 *WhatsApp:* Group එකට add කරන්න ඕන WhatsApp number එක එවන්න: [back: 🔙]',
-        'phone.invalid': '❌ WhatsApp number එක වැරදියි. නිවැරදි number එකක් එවන්න.',
-        'grade.ask': '{{idLine}}🎓 *Grade:* ඔයා ඉගෙන ගන්නේ කීවෙනි Grade එකේද (6-11)? [back: 🔙]',
-        'month.confirmed': '✅ *{{resolved}}* මාසය confirm කළා.',
-        'grade.invalid': '❌ Grade එක 6 සහ 11 අතර අගයක් එවන්න.',
-        'month.ask': '🗓️ *Month:* ඔයා payment එක කරන්නේ මොන month එකටද (Eg: April)? [back: 🔙]',
-        'month.invalidUnrecognized': '❌ Month එක වැරදියි. නිවැරදි මාසයක් එවන්න.',
-        'tutes.ask': '✅ *{{resolved}}* මාසය තෝරාගත්තා.\n📦 *Tutes:* ඔයාට tutes ගෙදරටම ගෙන්න ගන්න අවශ්‍යද? (yes/no) [back: 🔙]',
-        'yesNo.invalid': '❌ කරුණාකර "yes" හෝ "no" කියලා reply කරන්න.',
-        'address.ask': '📍 *Address:* Tutes එවන්න ඕන full home address එක එවන්න: [back: 🔙]',
-        'fee.prompt': '💸 *Payment Details:*\n\nමුදල: *LKR {{fee}}*\n\n{{bankLabel}}\n\n📸 කරුණාකර payment එක කරලා *bank slip* එක මෙතනට upload කරන්න. [back: 🔙]',
-        'receipt.needMedia': '❌ කරුණාකර receipt එක image එකක් හෝ PDF එකක් විදිහට එවන්න.',
-        'receipt.uploading': '⏳ _Receipt එක upload වෙනවා..._',
-        'receipt.uploadFail': '⚠️ Upload වෙන්නෙ නැහැ. කරුණාකර පැහැදිලි photo එකක් ආයෙත් එවන්න.',
-        'receipt.uploadError': '⚠️ Receipt එක process කිරීමේදී ප්‍රශ්නයක් වුණා. ආයෙත් try කරන්න.',
-        'confirm.preview': '📝 *Registration Preview:*\n\n*Name:* {{name}}\n*School:* {{school}}\n*ID:* {{idNumber}}\n*Month:* {{month}}\n*Grade:* {{grade}}\n*Tutes:* {{tutes}}{{addressLine}}\n\n_ඉදිරියට යන්න "yes" එවන්න, නැතිනම් "menu" එවන්න._',
-        'submit.sending': '⏳ ඔයාගේ details ටික Sir ට යවනවා...',
-        'submit.done': '✅ Registration සාර්ථකයි! ඔයාගේ details Sir ට ලැබුණා. Admin approve කළාට පස්සේ ඔයාව group එකට add කරයි.',
-        'confirm.reply': 'ඉදිරියට යන්න "yes" එවන්න, නැතිනම් "menu" එවන්න.',
-        'oldConfirm.prompt': '👋 Welcome back, *{{name}}*!\n\nGrade: {{grade}}\nWhatsApp: {{phone}}\n\n*මේ details නිවැරදිද? "yes" හෝ "no" කියලා එවන්න:* [back: 🔙]',
-        'oldTutes.ask': '📦 *Tutes:* මේ මාසේ tutes ගෙදරටම ගෙන්න ගන්න අවශ්‍යද? (yes/no) [back: 🔙]',
-        'oldConfirm.reply': 'කරුණාකර "yes" හෝ "back" එවන්න.',
-        'month.invalid': '❌ මාසය වැරදියි. ආයෙත් try කරන්න.',
-        'oldId.notFound': '❌ ID *{{id}}* system එකේ නැහැ. කරුණාකර නිවැරදි ID එක එවන්න.',
-        'oldAddress.ask': '📍 *Address:* Tutes එවන්න ඕන delivery address එක එවන්න:',
-        'amount.prompt': '💸 *ගෙවිය යුතු මුදල:* LKR {{fee}}\n\n{{bankLabel}}\n\n📸 කරුණාකර ඔයාගේ bank slip එක මෙතනට upload කරන්න.',
-        'complain.done': '✅ ඔයාගේ message එක Sir ට ලැබුණා. ස්තුතියි!',
-        'backMenu.title': '🔙 *EDIT DETAILS*\n\nවෙනස් කරන්න ඕන දේ select කරන්න:\n\n{{options}}\n\n_අදාළ number එක එවන්න, නැතිනම් "menu" එවන්න._',
-        'back.new.name': '👤 *Name:* ඔයාගේ full name එක එවන්න:',
-        'back.new.school': '🏫 *School:* ඔයාගේ school name එක එවන්න:',
-        'back.new.email': '📩 *Email:* ඔයාගේ email address එක එවන්න:',
-        'back.new.phone': '📞 *WhatsApp:* ඔයාගේ WhatsApp number එක එවන්න:',
-        'back.new.grade': '🎓 *Grade:* ඔයාගේ Grade එක එවන්න (6-11):',
-        'back.new.month': '🗓️ *Month:* අදාළ මාසය එවන්න (Eg: April):',
-        'back.new.tutes': '📦 *Tutes:* Tutes අවශ්‍යද? (yes/no):',
-        'back.new.invalid': '❌ වැරදි selection එකක්. කරුණාකර 1-7 අතර number එකක් එවන්න.',
-        'back.old.id': '🆔 *ID:* ඔයාගේ Student ID එක එවන්න:',
-        'back.old.month': '🗓️ *Month:* අදාළ මාසය එවන්න (Eg: April):',
-        'back.old.tutes': '📦 *Tutes:* Tutes අවශ්‍යද? (yes/no):',
-        'back.old.invalid': '❌ වැරදි selection එකක්. කරුණාකර 1-3 අතර number එකක් එවන්න.'
-    }
-};
-
-function t(lang, key, vars = {}) {
-    // Automatically inject critical variables to prevent "empty space" bugs
-    if (!vars.schoolName) vars.schoolName = SCHOOL_NAME || "Science Class";
-    
-    const dict = I18N[lang] || I18N[LANG.EN];
-    const fallback = I18N[LANG.EN] || {};
-    const template = (dict && dict[key]) || fallback[key] || key;
-    return template.replace(/\{\{(\w+)\}\}/g, (_, k) => (vars[k] !== undefined ? String(vars[k]) : ''));
-}
-
-function getUserLang(from) {
-    const data = userData.get(from);
-    if (data && data.lang) return data.lang;
-    const saved = userLangPref.get(from);
-    return saved === LANG.SI ? LANG.SI : LANG.EN;
-}
-
 /**
  * Formats the bank details message from environment variables.
  */
 function getBankLabel() {
-    return `*Bank:* ${process.env.BANK_NAME || 'N/A'}
-*Account Name:* ${process.env.BANK_ACC_NAME || 'N/A'}
-*Account Number:* ${process.env.BANK_ACC_NUMBER || 'N/A'}
-*Branch:* ${process.env.BANK_BRANCH || 'N/A'}`;
+    return `🏦 *Bank:* ${process.env.BANK_NAME || 'N/A'}
+👤 *Account Name:* ${process.env.BANK_ACC_NAME || 'N/A'}
+🔢 *Account Number:* ${process.env.BANK_ACC_NUMBER || 'N/A'}
+🏢 *Branch:* ${process.env.BANK_BRANCH || 'N/A'}`;
 }
 
 let SCHOOL_NAME = process.env.SCHOOL_NAME;
@@ -247,7 +108,6 @@ const MONTH_NAMES = [
 
 const STATES = {
     START: 'start',
-    LANGUAGE: 'language',
     NAME: 'name',
     SCHOOL: 'school',
     EMAIL: 'email',
@@ -274,7 +134,6 @@ const registeredStudentIds = new Map();
 const pendingApprovals = new Map();
 const adminStates = new Map();
 const inboundRateBuckets = new Map();
-const userLangPref = new Map(); // Persists language choice across session resets
 
 // System Control State
 let isShuttingDown = false;
@@ -307,8 +166,7 @@ function saveSessions() {
                     userData: Array.from(userData.entries()),
                     userStates: Array.from(userStates.entries()),
                     userHistory: Array.from(userHistory.entries()),
-                    adminStates: Array.from(adminStates.entries()),
-                    userLangPref: Array.from(userLangPref.entries())
+                    adminStates: Array.from(adminStates.entries())
                 };
                 fs.writeFileSync(SESSION_FILE, JSON.stringify(data, null, 2));
             } catch (error) {
@@ -334,8 +192,7 @@ function saveSessionsNow() {
             userData: Array.from(userData.entries()),
             userStates: Array.from(userStates.entries()),
             userHistory: Array.from(userHistory.entries()),
-            adminStates: Array.from(adminStates.entries()),
-            userLangPref: Array.from(userLangPref.entries())
+            adminStates: Array.from(adminStates.entries())
         };
         fs.writeFileSync(SESSION_FILE, JSON.stringify(data, null, 2));
         sessionSavePending = false;
@@ -357,7 +214,6 @@ function loadSessions() {
         if (data.userStates) data.userStates.forEach(([k, v]) => userStates.set(k, v));
         if (data.userHistory) data.userHistory.forEach(([k, v]) => userHistory.set(k, v));
         if (data.adminStates) data.adminStates.forEach(([k, v]) => adminStates.set(k, v));
-        if (data.userLangPref) data.userLangPref.forEach(([k, v]) => userLangPref.set(k, v));
 
         if (userStates.size > 0) {
             console.log(`[Persistence] Restored ${userStates.size} active sessions.`);
@@ -1182,18 +1038,10 @@ async function sendWA(to, text, options = {}) {
  * Sends the main welcome menu.
  */
 async function sendMainMenu(from) {
-    const lang = getUserLang(from);
-    const text = t(lang, 'menu.text', { schoolName: SCHOOL_NAME });
+    const text = `Welcome to *${SCHOOL_NAME}*! 🎓\n\nPlease choose an option by typing the number:\n\n1️⃣ - New admission\n2️⃣ - Monthly registration\n3️⃣ - Complain\n\n💡 _Type *menu* anytime to return here._`;
     return await sendWA(from, text);
 }
 
-function startLanguageSelectionSession(from, existingData = {}) {
-    const preserved = {};
-    if (existingData.contactId) preserved.contactId = existingData.contactId;
-    userHistory.delete(from);
-    userStates.set(from, STATES.LANGUAGE);
-    userData.set(from, { ...preserved, lastSeen: Date.now() });
-}
 
 /**
  * Adds a student to a WhatsApp group by ID.
@@ -1702,25 +1550,15 @@ client.on('message', async msg => {
                 userStates.set(from, STATES.START);
                 return await sendMainMenu(from);
             }
-            const previous = userData.get(from) || {};
-            startLanguageSelectionSession(from, previous);
-            return await sendWA(from, t(LANG.EN, 'language.prompt', { schoolName: SCHOOL_NAME }));
+        if (lowerBody === MENU_KEYWORD) {
+            resetUser(from);
+            userStates.set(from, STATES.START);
+            userData.set(from, { lastSeen: Date.now() });
+            return await sendMainMenu(from);
         }
         if (lowerBody === 'cancel') {
-            const savedLang = userLangPref.get(from);
-            if (savedLang) {
-                const lang = savedLang;
-                resetUser(from);
-                userData.set(from, { lang, lastSeen: Date.now() });
-                userStates.set(from, STATES.START);
-                await sendWA(from, t(lang, 'start.cancelled'));
-                return await sendMainMenu(from);
-            }
-            const previous = userData.get(from) || {};
-            const lang = getUserLang(from);
-            startLanguageSelectionSession(from, previous);
-            const cancelMsg = `${t(lang, 'start.cancelled')}\n\n${t(LANG.EN, 'language.prompt', { schoolName: SCHOOL_NAME })}`;
-            return await sendWA(from, cancelMsg);
+            resetUser(from);
+            return await sendWA(from, '👋 Registration cancelled. Type *menu* to start again.');
         }
 
         // Session Initialization
@@ -1729,34 +1567,21 @@ client.on('message', async msg => {
             if (from.includes('@lid')) {
                 try { const contact = await msg.getContact(); contactId = contact.id._serialized; } catch (e) { }
             }
-            const savedLang = userLangPref.get(from);
-            if (savedLang) {
-                // Returning user — skip language selection, go straight to menu
-                userHistory.delete(from);
-                userStates.set(from, STATES.START);
-                userData.set(from, { contactId, lang: savedLang, lastSeen: Date.now() });
-                return await sendMainMenu(from);
-            }
-            startLanguageSelectionSession(from, { contactId });
-            return await sendWA(from, t(LANG.EN, 'language.prompt', { schoolName: SCHOOL_NAME }));
+            userStates.set(from, STATES.START);
+            userData.set(from, { contactId, lastSeen: Date.now() });
+            return await sendMainMenu(from);
         }
 
         const state = userStates.get(from);
         const data = userData.get(from);
         data.lastSeen = Date.now();
 
-        if (!data.lang && state !== STATES.LANGUAGE) {
-            userStates.set(from, STATES.LANGUAGE);
-            return await sendWA(from, t(LANG.EN, 'language.prompt', { schoolName: SCHOOL_NAME }));
-        }
 
         // Command: Back
         if (lowerBody === 'back') {
-            const currentState = userStates.get(from);
-            if (currentState === STATES.CONFIRM) return await sendWA(from, t(getUserLang(from), 'start.cannotBackAfterReceipt'));
+            if (state === STATES.CONFIRM) return await sendWA(from, '❌ Cannot go back after receipt upload.');
 
             let options = [];
-            let stageCount = 0;
             if (data.isNewStudent) {
                 options = [
                     '1. Name',
@@ -1767,140 +1592,99 @@ client.on('message', async msg => {
                     '6. Month',
                     '7. Tute Choice'
                 ];
-                if (currentState === STATES.SCHOOL) stageCount = 1;
-                else if (currentState === STATES.EMAIL) stageCount = 2;
-                else if (currentState === STATES.PHONE) stageCount = 3;
-                else if (currentState === STATES.GRADE) stageCount = 4;
-                else if (currentState === STATES.MONTHS) stageCount = 5;
-                else if (currentState === STATES.TUTES_OPTION) stageCount = 6;
-                else if ([STATES.ADDRESS, STATES.RECEIPT].includes(currentState)) stageCount = 7;
             } else {
                 options = [
                     '1. Student ID',
-                    '2. Tute Choice',
-                    '3. Month'
+                    '2. Month',
+                    '3. Tute Choice'
                 ];
-                if ([STATES.OLD_CONFIRM, STATES.OLD_TUTES_OPTION].includes(currentState)) stageCount = 1;
-                else if (currentState === STATES.OLD_MONTH) stageCount = 2;
-                else if (currentState === STATES.RECEIPT) stageCount = 3;
             }
 
-            const filteredOptions = options.slice(0, stageCount);
-            if (filteredOptions.length === 0) return await sendMainMenu(from);
-
-            data.maxBackStage = stageCount; // Security: store max allowed choice
             userStates.set(from, STATES.BACK_MENU);
-            return await sendWA(from, t(getUserLang(from), 'backMenu.title', { options: filteredOptions.join('\n') }));
+            return await sendWA(from, `🔙 *EDIT MENU*\nWhere would you like to go back to?\n\n${options.join('\n')}\n\n_Type the number to jump, or *cancel* to exit._`);
         }
 
         // --- State Machine ---
         switch (state) {
-            case STATES.LANGUAGE: {
-                const normalized = lowerBody.replace(/\s+/g, '');
-                if (lowerBody === 'back') {
-                    if (data.lang) {
-                        userStates.set(from, STATES.START);
-                        return await sendMainMenu(from);
-                    }
-                    return await sendWA(from, t(LANG.EN, 'language.prompt'));
-                }
-                const pickedEn = body === '1' || normalized === 'english' || normalized === 'en';
-                const pickedSi = body === '2' || normalized === 'sinhala' || normalized === 'singlish' || normalized === 'සිංහල' || normalized === 'si';
-                if (!pickedEn && !pickedSi) return await sendWA(from, t(LANG.EN, 'language.invalid'));
-
-                const hadPreviousLanguage = !!data.lang;
-                data.lang = pickedSi ? LANG.SI : LANG.EN;
-                userLangPref.set(from, data.lang); // Remember for future sessions
-                userStates.set(from, STATES.START);
-                if (hadPreviousLanguage) {
-                    await sendWA(from, t(data.lang, 'language.changed'));
-                }
-                return await sendMainMenu(from);
-            }
 
             case STATES.START:
                 if (body === '1' || lowerBody.includes('admission')) {
                     pushHistory(from, state, data);
                     data.isNewStudent = true;
                     userStates.set(from, STATES.NAME);
-                    return await sendWA(from, t(getUserLang(from), 'start.newAdmissionPrompt'));
+                    return await sendWA(from, '🤝 Welcome! Please enter your *full name* to start.\n\n🔙 _Type *back* to edit details | *menu* to exit_');
                 }
                 if (body === '2' || lowerBody.includes('monthly')) {
                     pushHistory(from, state, data);
                     data.isNewStudent = false;
                     userStates.set(from, STATES.OLD_ID);
-                    return await sendWA(from, t(getUserLang(from), 'start.monthlyPrompt'));
+                    return await sendWA(from, '🆔 Please enter your *Student ID* (e.g. NEX-001).\n\n🔙 _Type *back* to edit details | *menu* to exit_');
                 }
                 if (body === '3' || lowerBody.includes('complain')) {
                     pushHistory(from, state, data);
                     userStates.set(from, STATES.COMPLAIN);
-                    return await sendWA(from, t(getUserLang(from), 'start.complainPrompt'));
+                    return await sendWA(from, '📝 Type your complaint for the admin.');
                 }
-                if (body === '4' || lowerBody.includes('language')) {
-                    userStates.set(from, STATES.LANGUAGE);
-                    return await sendWA(from, t(getUserLang(from), 'language.prompt'));
-                }
-                await sendWA(from, t(getUserLang(from), 'start.pickMenuOption'));
                 return await sendMainMenu(from);
 
             case STATES.NAME:
-                if (body.length < 3) return await sendWA(from, t(getUserLang(from), 'name.invalid'));
+                if (body.length < 3) return await sendWA(from, '❌ Please enter a valid full name.');
                 pushHistory(from, state, data);
                 data.name = body;
                 userStates.set(from, STATES.SCHOOL);
-                return await sendWA(from, t(getUserLang(from), 'school.askAfterName', { name: body }));
+                return await sendWA(from, `Nice to meet you, *${body}*!\nWhat is your *school name*?\n\n🔙 _Type *back* to edit details_`);
 
             case STATES.SCHOOL:
-                if (body.length < 2) return await sendWA(from, t(getUserLang(from), 'school.invalid'));
+                if (body.length < 2) return await sendWA(from, '❌ Please enter a valid school name.');
                 pushHistory(from, state, data);
                 data.school = body;
                 userStates.set(from, STATES.EMAIL);
-                return await sendWA(from, t(getUserLang(from), 'email.ask'));
+                return await sendWA(from, '📧 Great. What is your *email address*?\n\n🔙 _Type *back* to edit details_');
 
             case STATES.EMAIL:
-                if (!isValidEmail(body)) return await sendWA(from, t(getUserLang(from), 'email.invalid'));
+                if (!isValidEmail(body)) return await sendWA(from, '❌ Invalid email.');
                 pushHistory(from, state, data);
                 data.email = body;
                 userStates.set(from, STATES.PHONE);
-                return await sendWA(from, t(getUserLang(from), 'phone.ask'));
+                return await sendWA(from, '📫 Got it. Now, your *phone number*?\n\n🔙 _Type *back* to edit details_');
 
             case STATES.PHONE:
-                if (!isValidPhone(body)) return await sendWA(from, t(getUserLang(from), 'phone.invalid'));
+                if (!isValidPhone(body)) return await sendWA(from, '❌ Invalid phone.');
                 pushHistory(from, state, data);
                 data.phone = cleanPhoneNumber(body);
                 userStates.set(from, STATES.GRADE);
-                return await sendWA(from, t(getUserLang(from), 'grade.ask', { idLine: '' }));
+                return await sendWA(from, `Grade (6-11)?\n\n🔙 _Type *back* to edit details_`);
 
             case STATES.GRADE: {
                 const grade = parseInt(body, 10);
-                if (isNaN(grade) || grade < 6 || grade > 11) return await sendWA(from, t(getUserLang(from), 'grade.invalid'));
+                if (isNaN(grade) || grade < 6 || grade > 11) return await sendWA(from, '❌ Grades 6-11 only.');
                 pushHistory(from, state, data);
                 data.grade = grade;
                 userStates.set(from, STATES.MONTHS);
-                return await sendWA(from, t(getUserLang(from), 'month.ask'));
+                return await sendWA(from, '🗓️ Month (e.g. April)?\n\n🔙 _Type *back* to edit details_');
             }
 
             case STATES.MONTHS: {
                 const resolved = resolveMonthInput(body);
-                if (!resolved) return await sendWA(from, t(getUserLang(from), 'month.invalidUnrecognized'));
+                if (!resolved) return await sendWA(from, `❌ Could not recognize month.`);
                 pushHistory(from, state, data);
                 data.months = resolved;
                 userStates.set(from, STATES.TUTES_OPTION);
-                return await sendWA(from, t(getUserLang(from), 'tutes.ask', { resolved }));
+                return await sendWA(from, `✅ Registered for *${resolved}*.\nInclude *tutes* (yes/no)?\n\n🔙 _Type *back* to edit details_`);
             }
 
             case STATES.TUTES_OPTION: {
-                if (!['yes', 'no'].includes(lowerBody)) return await sendWA(from, t(getUserLang(from), 'yesNo.invalid'));
+                if (!['yes', 'no'].includes(lowerBody)) return await sendWA(from, '❌ Please reply with "yes" or "no".');
                 const wantsT = lowerBody === 'yes';
                 pushHistory(from, state, data);
                 data.wantsTutes = wantsT;
                 if (wantsT) {
                     userStates.set(from, STATES.ADDRESS);
-                    return await sendWA(from, t(getUserLang(from), 'address.ask'));
+                    return await sendWA(from, '🏠 Enter your *full shipping address*.\n\n🔙 _Type *back* to edit details_');
                 } else {
                     data.fee = 1500;
                     userStates.set(from, STATES.RECEIPT);
-                    return await sendWA(from, t(getUserLang(from), 'fee.prompt', { fee: 1500, bankLabel: getBankLabel() }));
+                    return await sendWA(from, `💰 *Fee:* LKR 1500\n\n${getBankLabel()}\n\n📸 Upload *receipt*.\n\n🔙 _Type *back* to edit details_`);
                 }
             }
 
@@ -1908,20 +1692,18 @@ client.on('message', async msg => {
                 pushHistory(from, state, data);
                 data.address = body;
                 if (data.isNewStudent) {
-                    // New student: address → receipt
                     data.fee = 2500;
                     userStates.set(from, STATES.RECEIPT);
-                    return await sendWA(from, t(getUserLang(from), 'fee.prompt', { fee: 2500, bankLabel: getBankLabel() }));
+                    return await sendWA(from, `💰 *Fee:* LKR 2500\n\n${getBankLabel()}\n\n📸 Upload *receipt*.\n\n🔙 _Type *back* to edit details_`);
                 } else {
-                    // Old student: address → month
                     userStates.set(from, STATES.OLD_MONTH);
-                    return await sendWA(from, t(getUserLang(from), 'month.ask'));
+                    return await sendWA(from, '🗓️ Month (e.g. April)?\n\n🔙 _Type *back* to edit details_');
                 }
 
             case STATES.RECEIPT:
-                if (!msg.hasMedia) return await sendWA(from, t(getUserLang(from), 'receipt.needMedia'));
+                if (!msg.hasMedia) return await sendWA(from, '❌ Send receipt as image/PDF.');
                 try {
-                    await sendWA(from, t(getUserLang(from), 'receipt.uploading'));
+                    await sendWA(from, '⏳ _Uploading..._');
 
                     // Robust media download with retries
                     let media = null;
@@ -1937,30 +1719,25 @@ client.on('message', async msg => {
 
                     if (!media || !media.data) {
                         console.error('[Media] Failed to download media after 3 attempts.');
-                        return await sendWA(from, t(getUserLang(from), 'receipt.uploadFail'));
+                        return await sendWA(from, '⚠️ Receipt upload failed. Please try again with a clear JPG/PNG/PDF.');
                     }
 
                     data.receiptUrl = await uploadReceiptToDrive(media, data.idNumber, data.name || 'Student');
-                    if (!data.receiptUrl) return await sendWA(from, t(getUserLang(from), 'receipt.uploadFail'));
+                    if (!data.receiptUrl) return await sendWA(from, '⚠️ Receipt upload failed. Please try again with a clear JPG/PNG/PDF.');
 
                     saveSessionsNow(); // Persist milestone
                     data.receiptMsgId = msg.id._serialized; // Store ID for later forwarding
 
                     userStates.set(from, STATES.CONFIRM);
-                    const addressLine = data.wantsTutes && data.address ? `\nAddress: ${data.address}` : '';
-                    const preview = t(getUserLang(from), 'confirm.preview', {
-                        name: data.name,
-                        school: data.school || 'N/A',
-                        idNumber: data.idNumber || 'New Registration',
-                        month: data.months,
-                        grade: data.grade,
-                        tutes: data.wantsTutes ? 'Yes' : 'No',
-                        addressLine
-                    });
+                    let preview = `📋 *PREVIEW*\n\nName: ${data.name}\nSchool: ${data.school || 'N/A'}\nID: ${data.idNumber || 'New Registration'}\nMonth: ${data.months}\nGrade: ${data.grade}\nTutes: ${data.wantsTutes ? 'Yes' : 'No'}`;
+                    if (data.wantsTutes && data.address) {
+                        preview += `\nAddress: ${data.address}`;
+                    }
+                    preview += `\n\n*Reply "yes" to submit or "menu" to restart.*`;
                     return await sendWA(from, preview);
                 } catch (e) {
                     console.error('[Media] Error handling receipt:', e.message);
-                    return await sendWA(from, t(getUserLang(from), 'receipt.uploadError'));
+                    return await sendWA(from, '⚠️ Error uploading receipt.');
                 }
 
             case STATES.CONFIRM:
@@ -2034,62 +1811,52 @@ client.on('message', async msg => {
                 return await sendWA(from, t(getUserLang(from), 'oldConfirm.reply'));
 
             case STATES.OLD_TUTES_OPTION:
-                if (!['yes', 'no'].includes(lowerBody)) return await sendWA(from, t(getUserLang(from), 'yesNo.invalid'));
+                if (!['yes', 'no'].includes(lowerBody)) return await sendWA(from, '❌ Please reply with "yes" or "no".');
                 pushHistory(from, state, data);
                 data.wantsTutes = lowerBody === 'yes';
                 if (data.wantsTutes) {
                     userStates.set(from, STATES.ADDRESS);
-                    return await sendWA(from, t(getUserLang(from), 'address.ask'));
+                    return await sendWA(from, '🏠 Shipping address?');
                 }
                 userStates.set(from, STATES.OLD_MONTH);
-                return await sendWA(from, t(getUserLang(from), 'month.ask'));
+                return await sendWA(from, '🗓️ Month (e.g. April)?\n\n🔙 _Type *back* to edit details_');
 
             case STATES.OLD_MONTH: {
                 const resolved = resolveMonthInput(body);
-                if (!resolved) return await sendWA(from, t(getUserLang(from), 'month.invalid'));
+                if (!resolved) return await sendWA(from, '❌ Invalid month.');
                 pushHistory(from, state, data);
                 data.months = resolved;
                 data.status = 'Pending';
                 data.fee = data.wantsTutes ? 2500 : 1500;
                 userStates.set(from, STATES.RECEIPT);
-                const confMsg = t(getUserLang(from), 'month.confirmed', { resolved });
-                const amntMsg = t(getUserLang(from), 'amount.prompt', { fee: data.fee, bankLabel: getBankLabel() });
-                return await sendWA(from, `${confMsg}\n\n${amntMsg}`);
+                return await sendWA(from, `✅ Registered for *${resolved}*.\n\n💰 *Amount:* LKR ${data.fee}\n\n${getBankLabel()}\n\n📸 Upload receipt.`);
             }
 
-            case STATES.COMPLAIN: {
-                const complainLang = getUserLang(from);
+            case STATES.COMPLAIN:
                 await notifyAdmins(`📣 *COMPLAIN* from ${from}:\n\n${body}`);
                 await saveComplaintToSheets(from, body);
                 resetUser(from);
-                return await sendWA(from, t(complainLang, 'complain.done'));
-            }
+                return await sendWA(from, '✅ Sent to admin. Thank you!');
 
             case STATES.BACK_MENU: {
                 const choice = parseInt(body, 10);
-                const max = data.maxBackStage || 0;
-                if (isNaN(choice) || choice < 1 || choice > max) {
-                    const lang = getUserLang(from);
-                    return await sendWA(from, data.isNewStudent ? t(lang, 'back.new.invalid') : t(lang, 'back.old.invalid'));
-                }
-
                 if (data.isNewStudent) {
                     switch (choice) {
-                        case 1: userStates.set(from, STATES.NAME); return await sendWA(from, t(getUserLang(from), 'back.new.name'));
-                        case 2: userStates.set(from, STATES.SCHOOL); return await sendWA(from, t(getUserLang(from), 'back.new.school'));
-                        case 3: userStates.set(from, STATES.EMAIL); return await sendWA(from, t(getUserLang(from), 'back.new.email'));
-                        case 4: userStates.set(from, STATES.PHONE); return await sendWA(from, t(getUserLang(from), 'back.new.phone'));
-                        case 5: userStates.set(from, STATES.GRADE); return await sendWA(from, t(getUserLang(from), 'back.new.grade'));
-                        case 6: userStates.set(from, STATES.MONTHS); return await sendWA(from, t(getUserLang(from), 'back.new.month'));
-                        case 7: userStates.set(from, STATES.TUTES_OPTION); return await sendWA(from, t(getUserLang(from), 'back.new.tutes'));
-                        default: return await sendWA(from, t(getUserLang(from), 'back.new.invalid'));
+                        case 1: userStates.set(from, STATES.NAME); return await sendWA(from, '🤝 Please enter your *full name*.');
+                        case 2: userStates.set(from, STATES.SCHOOL); return await sendWA(from, '🏫 What is your *school name*?');
+                        case 3: userStates.set(from, STATES.EMAIL); return await sendWA(from, '📧 What is your *email address*?');
+                        case 4: userStates.set(from, STATES.PHONE); return await sendWA(from, '📫 What is your *phone number*?');
+                        case 5: userStates.set(from, STATES.GRADE); return await sendWA(from, '🎓 Which *Grade* (6-11)?');
+                        case 6: userStates.set(from, STATES.MONTHS); return await sendWA(from, '🗓️ Which *month* (e.g. April)?');
+                        case 7: userStates.set(from, STATES.TUTES_OPTION); return await sendWA(from, '📦 Include *tutes* (yes/no)?');
+                        default: return await sendWA(from, '❌ Invalid choice. Please type a number (1-7) from the menu.');
                     }
                 } else {
                     switch (choice) {
-                        case 1: userStates.set(from, STATES.OLD_ID); return await sendWA(from, t(getUserLang(from), 'back.old.id'));
-                        case 2: userStates.set(from, STATES.OLD_TUTES_OPTION); return await sendWA(from, t(getUserLang(from), 'back.old.tutes'));
-                        case 3: userStates.set(from, STATES.OLD_MONTH); return await sendWA(from, t(getUserLang(from), 'back.old.month'));
-                        default: return await sendWA(from, t(getUserLang(from), 'back.old.invalid'));
+                        case 1: userStates.set(from, STATES.OLD_ID); return await sendWA(from, '🆔 Please enter your *Student ID* (e.g. NEX-001).');
+                        case 2: userStates.set(from, STATES.OLD_MONTH); return await sendWA(from, '🗓️ Which *month* (e.g. April)?');
+                        case 3: userStates.set(from, STATES.OLD_TUTES_OPTION); return await sendWA(from, '📦 Include *tutes* (yes/no)?');
+                        default: return await sendWA(from, '❌ Invalid choice. Please type a number (1-3) from the menu.');
                     }
                 }
             }
@@ -2097,14 +1864,9 @@ client.on('message', async msg => {
     } catch (globalError) {
         console.error(`[Message Handler] Unhandled Error processing message from ${from}:`, globalError.stack || globalError.message);
 
-        // Safety reset to prevent the user from being permanently stuck in a corrupted state
         try {
-            const lang = getUserLang(from);
             resetUser(from);
-            const errorMsg = lang === LANG.SI 
-                ? `⚠️ සාදරයෙන් සමාවන්න, පද්ධතියේ දෝෂයක් සිදු වුණා. \nකරුණාකර *menu* ලෙස එවන්න.` 
-                : `⚠️ *A system error occurred.* \nPlease type *menu* to restart.`;
-            await sendWA(from, errorMsg);
+            await sendWA(from, `⚠️ *A system error occurred.* \nPlease type *menu* to restart.`);
         } catch (e) {
             console.error(`[Message Handler] Failed to send error recovery message:`, e.message);
         }
