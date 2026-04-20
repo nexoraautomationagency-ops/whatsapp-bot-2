@@ -1167,7 +1167,11 @@ async function isUserAdmin(msg) {
 }
 
 client.on('message', async msg => {
-    if (isShuttingDown || !isSystemReady) return;
+    if (isShuttingDown) return;
+    if (!isSystemReady) {
+        console.log(`[System] Ignoring message from ${msg.from} because bot is still initializing.`);
+        return;
+    }
     if (msg.fromMe) return;
     const from = msg.from;
     // Hard-stop non-1:1 chats (groups, status/broadcast, channels)
@@ -1534,7 +1538,7 @@ client.on('message', async msg => {
                 }
             }
 
-            return;
+            // If no admin command matched, allow fall-through to student workflow
         }
 
         /**
