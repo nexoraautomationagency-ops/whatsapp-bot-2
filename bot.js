@@ -1734,8 +1734,7 @@ client.on('message', async msg => {
 
             case STATES.CONFIRM:
                 if (lowerBody === 'yes') {
-                    const confirmLang = getUserLang(from);
-                    await sendWA(from, t(confirmLang, 'submit.sending'));
+                    await sendWA(from, '🚀 Submitting...');
 
                     // Generate Batch-based ID at the last second for NEW students
                     if (data.isNewStudent) {
@@ -1768,39 +1767,37 @@ client.on('message', async msg => {
                     }
 
                     resetUser(from);
-                    return await sendWA(from, t(confirmLang, 'submit.done') + `\n\n🆔 *Your Student ID:* ${data.idNumber}`);
+                    return await sendWA(from, `✅ Admission submitted for approval.\n\n🆔 *Your Student ID:* ${data.idNumber}`);
                 }
                 if (lowerBody === 'no') {
-                    const cancelLang = getUserLang(from);
                     resetUser(from);
-                    return await sendWA(from, t(cancelLang, 'start.cancelled'));
+                    return await sendWA(from, '👋 Session cancelled. Type *menu* to start again.');
                 }
-                return await sendWA(from, t(getUserLang(from), 'confirm.reply'));
+                return await sendWA(from, 'Reply "yes" or "menu".');
 
             case STATES.OLD_ID: {
                 const nid = normalizeStudentId(body);
-                if (!registeredStudentIds.has(nid)) return await sendWA(from, t(getUserLang(from), 'oldId.notFound', { id: nid }));
+                if (!registeredStudentIds.has(nid)) return await sendWA(from, `❌ ID *${nid}* not found.`);
                 pushHistory(from, state, data);
                 const existing = registeredStudentIds.get(nid);
                 Object.assign(data, existing);
                 data.idNumber = nid;
                 data.isNewStudent = false;
                 userStates.set(from, STATES.OLD_CONFIRM);
-                return await sendWA(from, t(getUserLang(from), 'oldConfirm.prompt', { name: existing.name, grade: existing.grade, phone: existing.phone }));
+                return await sendWA(from, `👋 Welcome back, *${existing.name}*!\nGrade: ${existing.grade}\nPhone: ${existing.phone}\n\n*Reply "yes" or "no".*\n\n🔙 _Type *back* to edit details_`);
             }
 
             case STATES.OLD_CONFIRM:
                 if (lowerBody === 'yes') {
                     pushHistory(from, state, data);
                     userStates.set(from, STATES.OLD_TUTES_OPTION);
-                    return await sendWA(from, t(getUserLang(from), 'oldTutes.ask'));
+                    return await sendWA(from, '📦 Include *tutes* (yes/no)?\n\n🔙 _Type *back* to edit details_');
                 }
                 if (lowerBody === 'no') {
-                    const oldCancelLang = getUserLang(from);
                     resetUser(from);
-                    return await sendWA(from, t(oldCancelLang, 'start.cancelled'));
+                    return await sendWA(from, '👋 Session cancelled. Type *menu* to start again.');
                 }
-                return await sendWA(from, t(getUserLang(from), 'oldConfirm.reply'));
+                return await sendWA(from, 'Reply "yes" or "back".');
 
             case STATES.OLD_TUTES_OPTION:
                 if (!['yes', 'no'].includes(lowerBody)) return await sendWA(from, '❌ Please reply with "yes" or "no".');
