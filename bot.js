@@ -1538,7 +1538,7 @@ client.on('message', async msg => {
                 }
             }
 
-            // If no admin command matched, allow fall-through to student workflow
+            return;
         }
 
         /**
