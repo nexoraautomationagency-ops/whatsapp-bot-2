@@ -1543,14 +1543,6 @@ client.on('message', async msg => {
 
         // Global Keywords
         if (lowerBody === MENU_KEYWORD) {
-            const savedLang = userLangPref.get(from);
-            if (savedLang) {
-                resetUser(from);
-                userData.set(from, { lang: savedLang, lastSeen: Date.now() });
-                userStates.set(from, STATES.START);
-                return await sendMainMenu(from);
-            }
-        if (lowerBody === MENU_KEYWORD) {
             resetUser(from);
             userStates.set(from, STATES.START);
             userData.set(from, { lastSeen: Date.now() });
