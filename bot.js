@@ -142,6 +142,12 @@ let cachedOAuthClient = null;
 let sessionSaveTimer = null;
 let sessionSavePending = false;
 
+// Google ID Cache for performance
+const driveCache = {
+    gradeFolders: new Map(), // Grade Name -> Folder ID
+    monthlySheets: new Map() // Grade+Month -> Spreadsheet ID
+};
+
 /**
  * Resets a user's session entirely.
  */
@@ -837,26 +843,40 @@ async function upsertStudentData(studentData, forceStatus = null, oldGrade = nul
  * Drive Folder Utility.
  */
 async function getOrCreateFolder(drive, parentFolderId, folderName) {
+    if (driveCache.gradeFolders.has(folderName)) return driveCache.gradeFolders.get(folderName);
+
     const query = `'${parentFolderId}' in parents and name = '${folderName}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false`;
     const response = await drive.files.list({ q: query, fields: 'files(id, name)' });
 
-    if (response.data.files.length > 0) return response.data.files[0].id;
+    if (response.data.files.length > 0) {
+        const id = response.data.files[0].id;
+        driveCache.gradeFolders.set(folderName, id);
+        return id;
+    }
 
     const folder = await drive.files.create({
         resource: { name: folderName, mimeType: 'application/vnd.google-apps.folder', parents: [parentFolderId] },
         fields: 'id'
     });
-    return folder.data.id;
+    const newId = folder.data.id;
+    driveCache.gradeFolders.set(folderName, newId);
+    return newId;
 }
 
 /**
  * Monthly Spreadsheet Utility.
  */
 async function getOrCreateMonthlySpreadsheet(drive, sheets, gradeFolderId, monthSheetName) {
+    if (driveCache.monthlySheets.has(monthSheetName)) return driveCache.monthlySheets.get(monthSheetName);
+
     const query = `'${gradeFolderId}' in parents and name = '${monthSheetName}' and mimeType = 'application/vnd.google-apps.spreadsheet' and trashed = false`;
     const response = await drive.files.list({ q: query, fields: 'files(id, name)' });
 
-    if (response.data.files.length > 0) return response.data.files[0].id;
+    if (response.data.files.length > 0) {
+        const id = response.data.files[0].id;
+        driveCache.monthlySheets.set(monthSheetName, id);
+        return id;
+    }
 
     const newFile = await drive.files.create({
         resource: { name: monthSheetName, mimeType: 'application/vnd.google-apps.spreadsheet', parents: [gradeFolderId] },
@@ -870,6 +890,7 @@ async function getOrCreateMonthlySpreadsheet(drive, sheets, gradeFolderId, month
         valueInputOption: 'RAW',
         resource: { values: [STUDENT_HEADERS] }
     });
+    driveCache.monthlySheets.set(monthSheetName, newSpreadsheetId);
     return newSpreadsheetId;
 }
 
@@ -1084,7 +1105,7 @@ const client = new Client({
     }),
     webVersionCache: {
         type: 'remote',
-        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html',
+        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.3000.1014581023-alpha.html',
     },
     puppeteer: {
         headless: true,
@@ -1095,7 +1116,6 @@ const client = new Client({
             '--disable-accelerated-2d-canvas',
             '--no-first-run',
             '--no-zygote',
-            '--single-process',
             '--disable-gpu'
         ]
     }
@@ -1222,6 +1242,7 @@ client.on('message', async msg => {
 • \`status <id>\` - Search student details.
 • \`approve <id>\` - Approve student.
 • \`reject <id> [reason]\` - Deny student.
+• \`list pending\` - Show students waiting for approval.
 • \`kick <id>\` - Remove student from group.
 • \`delete student <id>\` - Remove from record.
 • \`edit student <id> <field> <value>\` - Update details.
@@ -1419,6 +1440,22 @@ client.on('message', async msg => {
                 }).catch(err => {
                     console.error('[Approval Queue] Rejection serialization error recovered:', err.message);
                 });
+                return;
+            }
+
+            // Command: List Pending
+            if (lowerBody === 'list pending') {
+                if (pendingApprovals.size === 0) return await sendWA(from, 'ℹ️ No students currently waiting for approval.');
+                
+                let list = `⏳ *PENDING APPROVALS (${pendingApprovals.size})*\n\n`;
+                const sorted = Array.from(pendingApprovals.values()).sort((a,b) => (a.grade || 0) - (b.grade || 0));
+                
+                sorted.forEach((s, i) => {
+                    list += `${i+1}. *${s.idNumber}* - ${s.name}\nGrade: ${s.grade} | Month: ${s.months}\n\n`;
+                });
+                list += `_Type "approve <id>" to proceed._`;
+                return await sendWA(from, list);
+            }
 
             // Command: Status Search
             if (lowerBody.startsWith('status ')) {
@@ -1614,7 +1651,7 @@ client.on('message', async msg => {
                     pushHistory(from, state, data);
                     data.isNewStudent = false;
                     userStates.set(from, STATES.OLD_ID);
-                    return await sendWA(from, '🆔 Please enter your *Student ID* (e.g. NEX-001).\n\n🔙 _Type *back* to edit details | *menu* to exit_');
+                    return await sendWA(from, '🆔 Please enter your *Student ID* (e.g. 310001).\n\n🔙 _Type *back* to edit details | *menu* to exit_');
                 }
                 if (body === '3' || lowerBody.includes('complain')) {
                     pushHistory(from, state, data);
@@ -1780,8 +1817,28 @@ client.on('message', async msg => {
                 return await sendWA(from, 'Reply "yes" or "menu".');
 
             case STATES.OLD_ID: {
-                const nid = normalizeStudentId(body);
-                if (!registeredStudentIds.has(nid)) return await sendWA(from, `❌ ID *${nid}* not found.`);
+                let nid = normalizeStudentId(body);
+                let existing = registeredStudentIds.get(nid);
+
+                // Smart Login: If ID not found, try searching by Phone Number
+                if (!existing) {
+                    const cleanedInput = cleanPhoneNumber(body);
+                    if (isValidPhone(cleanedInput)) {
+                        const matches = Array.from(registeredStudentIds.values()).filter(s => cleanPhoneNumber(s.phone) === cleanedInput);
+                        if (matches.length === 1) {
+                            existing = matches[0];
+                            nid = existing.idNumber;
+                            await sendWA(from, `🔍 *ID Found!* Your registered ID is *${nid}* (${existing.name}).`);
+                        } else if (matches.length > 1) {
+                            let list = `🔍 *Multiple IDs found for this phone:*\n\n`;
+                            matches.forEach(m => list += `• ${m.idNumber} (${m.name})\n`);
+                            list += `\n_Please type your specific ID to continue._`;
+                            return await sendWA(from, list);
+                        }
+                    }
+                }
+
+                if (!existing) return await sendWA(from, `❌ ID *${nid}* not found.\n\n_If you forgot your ID, please type your registered phone number to find it._`);
                 pushHistory(from, state, data);
                 const existing = registeredStudentIds.get(nid);
                 Object.assign(data, existing);
@@ -1846,7 +1903,7 @@ client.on('message', async msg => {
                     }
                 } else {
                     switch (choice) {
-                        case 1: userStates.set(from, STATES.OLD_ID); return await sendWA(from, '🆔 Please enter your *Student ID* (e.g. NEX-001).');
+                        case 1: userStates.set(from, STATES.OLD_ID); return await sendWA(from, '🆔 Please enter your *Student ID* (e.g. 310001).');
                         case 2: userStates.set(from, STATES.OLD_MONTH); return await sendWA(from, '🗓️ Which *month* (e.g. April)?');
                         case 3: userStates.set(from, STATES.OLD_TUTES_OPTION); return await sendWA(from, '📦 Include *tutes* (yes/no)?');
                         default: return await sendWA(from, '❌ Invalid choice. Please type a number (1-3) from the menu.');
