@@ -73,7 +73,7 @@ let TUTE_FEE = parseInt(process.env.FEE_TUTE || '2500', 10);
 
 // System Constants
 const MENU_KEYWORD = 'menu';
-const SESSION_TIMEOUT_MS = 60 * 60 * 1000; // 1 Hour inactivity
+const SESSION_TIMEOUT_MS = 2 * 24 * 60 * 60 * 1000; // 48 Hours inactivity
 const SESSION_FILE = path.join(__dirname, 'sessions.json');
 const MESSAGE_RATE_WINDOW_MS = 15 * 1000;
 const MESSAGE_RATE_MAX = 10;
@@ -138,6 +138,7 @@ const registeredStudentIds = new Map();
 const pendingApprovals = new Map();
 const adminStates = new Map();
 const inboundRateBuckets = new Map();
+const processedMessages = new Set();
 
 // System Control State
 let isShuttingDown = false;
@@ -194,6 +195,21 @@ function saveSessions() {
     }
 }
 
+/**
+ * Performs an atomic write of the session data to prevent file corruption.
+ */
+function atomicWriteSessions(data) {
+    const tempFile = `${SESSION_FILE}.tmp`;
+    try {
+        fs.writeFileSync(tempFile, JSON.stringify(data, null, 2));
+        fs.renameSync(tempFile, SESSION_FILE);
+    } catch (error) {
+        console.error('[Persistence] Atomic write failed:', error.message);
+        // Fallback to direct write if rename fails
+        try { fs.writeFileSync(SESSION_FILE, JSON.stringify(data, null, 2)); } catch (e) {}
+    }
+}
+
 function saveSessionsNow() {
     try {
         if (sessionSaveTimer) {
@@ -207,7 +223,7 @@ function saveSessionsNow() {
             adminStates: Array.from(adminStates.entries()),
             pendingApprovals: Array.from(pendingApprovals.entries())
         };
-        fs.writeFileSync(SESSION_FILE, JSON.stringify(data, null, 2));
+        atomicWriteSessions(data);
         sessionSavePending = false;
     } catch (error) {
         console.error('[Persistence] Error saving sessions:', error.message);
@@ -266,6 +282,11 @@ setInterval(() => {
         if (now - bucket.windowStart > MESSAGE_RATE_WINDOW_MS * 2) inboundRateBuckets.delete(from);
     }
 }, 60 * 1000).unref();
+
+// Periodically clear deduplication cache to manage memory
+setInterval(() => {
+    if (processedMessages.size > 2000) processedMessages.clear();
+}, 15 * 60 * 1000).unref();
 
 
 // --- 3. UTILITY & RESILIENCE HELPERS ---
@@ -1094,6 +1115,25 @@ async function sendWA(to, text, options = {}) {
 }
 
 /**
+ * Resolves a message sender to a consistent "Canonical JID".
+ * This handles LID (@lid) to JID (@c.us) resolution to ensure session persistence.
+ */
+async function getCanonicalId(msg) {
+    const from = msg.from;
+    if (from.includes('@lid')) {
+        try {
+            const contact = await msg.getContact();
+            if (contact?.id?._serialized && !contact.id._serialized.includes('@lid')) {
+                return contact.id._serialized;
+            }
+        } catch (e) {
+            console.warn(`[ID Normalization] Failed to resolve LID ${from}:`, e.message);
+        }
+    }
+    return from;
+}
+
+/**
  * Sends the main welcome menu.
  */
 async function sendMainMenu(from) {
@@ -1231,7 +1271,18 @@ client.on('message', async msg => {
         return;
     }
     if (msg.fromMe) return;
-    const from = msg.from;
+
+    // 1. WhatsApp Message Deduplication
+    if (processedMessages.has(msg.id._serialized)) {
+        console.log(`[System] Ignoring duplicate message ${msg.id._serialized} from ${msg.from}`);
+        return;
+    }
+    processedMessages.add(msg.id._serialized);
+    if (processedMessages.size > 2000) processedMessages.clear(); // Safety cap
+
+    // 2. ID Normalization: Resolve LID to JID once per message
+    const from = await getCanonicalId(msg);
+    
     // Hard-stop non-1:1 chats (groups, status/broadcast, channels)
     if (
         !from ||
@@ -1681,12 +1732,8 @@ client.on('message', async msg => {
 
         // Session Initialization
         if (!userStates.has(from)) {
-            let contactId = from;
-            if (from.includes('@lid')) {
-                try { const contact = await msg.getContact(); contactId = contact.id._serialized; } catch (e) { }
-            }
             userStates.set(from, STATES.START);
-            userData.set(from, { contactId, lastSeen: Date.now() });
+            userData.set(from, { contactId: from, lastSeen: Date.now() });
             return await sendMainMenu(from);
         }
 
@@ -1842,6 +1889,14 @@ client.on('message', async msg => {
 
             case STATES.RECEIPT:
                 if (!msg.hasMedia) return await sendWA(from, '❌ Send receipt as image/PDF.');
+                
+                // Concurrency Lock: Prevent parallel uploads for the same user
+                if (data.isUploading) {
+                    console.log(`[Media] Ignoring parallel receipt upload attempt from ${from}`);
+                    return;
+                }
+                data.isUploading = true;
+
                 try {
                     await sendWA(from, '⏳ _Uploading..._');
 
@@ -1862,23 +1917,30 @@ client.on('message', async msg => {
                         return await sendWA(from, '⚠️ Receipt upload failed. Please try again with a clear JPG/PNG/PDF.');
                     }
 
-                    data.receiptUrl = await uploadReceiptToDrive(media, data.idNumber, data.name || 'Student');
-                    if (!data.receiptUrl) return await sendWA(from, '⚠️ Receipt upload failed. Please try again with a clear JPG/PNG/PDF.');
+                    const receiptUrl = await uploadReceiptToDrive(media, data.idNumber, data.name || 'Student');
+                    if (!receiptUrl) return await sendWA(from, '⚠️ Receipt upload failed. Please try again with a clear JPG/PNG/PDF.');
 
-                    saveSessionsNow(); // Persist milestone
+                    data.receiptUrl = receiptUrl;
                     data.receiptMsgId = msg.id._serialized; // Store ID for later forwarding
+                    saveSessionsNow(); // Persist milestone
 
-                    userStates.set(from, STATES.CONFIRM);
                     let preview = `📋 *PREVIEW*\n\nName: ${data.name}\nSchool: ${data.school || 'N/A'}\nID: ${data.idNumber || 'New Registration'}\nMonth: ${data.months}\nGrade: ${data.grade}\nTutes: ${data.wantsTutes ? 'Yes' : 'No'}`;
                     if (data.wantsTutes && data.address) {
                         preview += `\nAddress: ${data.address}`;
                     }
                     preview += `\n\n*Reply "yes" to submit or "menu" to restart.*`;
-                    return await sendWA(from, preview);
+                    
+                    const sent = await sendWA(from, preview);
+                    if (sent) {
+                        userStates.set(from, STATES.CONFIRM);
+                    }
                 } catch (e) {
                     console.error('[Media] Error handling receipt:', e.message);
-                    return await sendWA(from, '⚠️ Error uploading receipt.');
+                    return await sendWA(from, '⚠️ Error uploading receipt. Please try again.');
+                } finally {
+                    delete data.isUploading;
                 }
+                return;
 
             case STATES.CONFIRM:
                 if (lowerBody === 'yes') {
