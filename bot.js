@@ -1474,6 +1474,15 @@ client.on('message', async msg => {
             }
 
             // Command: Reject Student
+            if (lowerBody.startsWith('reject ')) {
+                const parts = body.split(/\s+/);
+                const studentId = normalizeStudentId(parts[1]);
+                const reason = body.substring(body.indexOf(parts[1]) + parts[1].length).trim() || 'No reason specified.';
+
+                if (!studentId || !pendingApprovals.has(studentId)) {
+                    return await sendWA(from, '❌ Student ID missing or not pending.');
+                }
+
                 approvalQueue = approvalQueue.then(async () => {
                     try {
                         const student = pendingApprovals.get(studentId);
@@ -1922,7 +1931,6 @@ client.on('message', async msg => {
 
                 if (!existing) return await sendWA(from, `❌ ID *${nid}* not found.\n\n_If you forgot your ID, please type your registered phone number to find it._`);
                 pushHistory(from, state, data);
-                const existing = registeredStudentIds.get(nid);
                 Object.assign(data, existing);
                 data.idNumber = nid;
                 data.isNewStudent = false;
