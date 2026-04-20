@@ -1719,12 +1719,13 @@ client.on('message', async msg => {
 
             case STATES.START:
                 if (body === '1' || lowerBody.includes('admission')) {
-                    // Duplicate Check: See if this phone is already registered
-                    const cleanedPhone = cleanPhoneNumber(from.split('@')[0]);
+                    // Duplicate Check: Use resolved contactId (JID) instead of raw 'from' which might be an LID
+                    const userJid = data.contactId || from;
+                    const cleanedPhone = cleanPhoneNumber(userJid.split('@')[0]);
                     const existing = Array.from(registeredStudentIds.values()).find(s => cleanPhoneNumber(s.phone) === cleanedPhone);
                     
                     if (existing) {
-                        return await sendWA(from, `👋 Hi *${existing.name}*!\n\nIt looks like you are already registered with ID: *${existing.idNumber}*.\n\nTo pay for a new month, please use option *2️⃣ - Monthly registration* from the main menu.\n\n_If you need to register a DIFFERENT person, please type *continue*._`);
+                        return await sendWA(from, `👋 Hi *${existing.name}*!\n\nIt looks like you are already registered with ID: *${existing.idNumber}*.\n\nTo pay for a new month, please use option *2️⃣ - Pay monthly fees* from the main menu.\n\n_If you need to register a DIFFERENT person, please type *continue*._`);
                     }
 
                     pushHistory(from, state, data);
@@ -1913,8 +1914,9 @@ client.on('message', async msg => {
 
                 // Smart Login: If ID not found, try searching by Phone Number
                 if (!existing) {
-                    const cleanedInput = cleanPhoneNumber(body);
-                    if (isValidPhone(cleanedInput)) {
+                    // Validate raw body (must start with 0) before cleaning it
+                    if (isValidPhone(body)) {
+                        const cleanedInput = cleanPhoneNumber(body);
                         const matches = Array.from(registeredStudentIds.values()).filter(s => cleanPhoneNumber(s.phone) === cleanedInput);
                         if (matches.length === 1) {
                             existing = matches[0];
@@ -1929,7 +1931,7 @@ client.on('message', async msg => {
                     }
                 }
 
-                if (!existing) return await sendWA(from, `❌ ID *${nid}* not found.\n\n_If you forgot your ID, please type your registered phone number to find it._`);
+                if (!existing) return await sendWA(from, `❌ No student found with ID or Phone: *${body}*.\n\n_If you are a new student, type *menu* and choose option 1. For help, contact Sir._`);
                 pushHistory(from, state, data);
                 Object.assign(data, existing);
                 data.idNumber = nid;
