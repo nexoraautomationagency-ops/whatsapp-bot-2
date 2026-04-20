@@ -1094,7 +1094,7 @@ async function sendWA(to, text, options = {}) {
  * Sends the main welcome menu.
  */
 async function sendMainMenu(from) {
-    const text = `Welcome to *${SCHOOL_NAME}*! 🎓\n\nPlease choose an option by typing the number:\n\n1️⃣ - New admission\n2️⃣ - Monthly registration\n3️⃣ - Complain\n\n💡 _Type *menu* anytime to return here._`;
+    const text = `Welcome to *${SCHOOL_NAME}*! 🎓\n\nPlease choose an option by typing the number:\n\n1️⃣ - New admission\n2️⃣ - Pay monthly fees\n3️⃣ - Complain\n\n💡 _Type *menu* anytime to return here._`;
     return await sendWA(from, text);
 }
 
