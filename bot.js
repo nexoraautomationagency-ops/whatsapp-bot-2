@@ -67,6 +67,10 @@ const RANGE = 'Sheet1!A:L'; // Includes School column
 // Sheet Headers
 const STUDENT_HEADERS = ['Student ID', 'Name', 'School', 'Grade', 'Month', 'Phone', 'Email', 'Tutes', 'Address', 'Status', 'Receipt URL', 'Group ID'];
 
+// Pricing Configuration
+let BASIC_FEE = parseInt(process.env.FEE_BASIC || '1500', 10);
+let TUTE_FEE = parseInt(process.env.FEE_TUTE || '2500', 10);
+
 // System Constants
 const MENU_KEYWORD = 'menu';
 const SESSION_TIMEOUT_MS = 60 * 60 * 1000; // 1 Hour inactivity
@@ -292,6 +296,8 @@ function updateEnvFile(key, value) {
             });
         }
         if (key === 'SCHOOL_NAME') SCHOOL_NAME = value;
+        if (key === 'FEE_BASIC') BASIC_FEE = parseInt(value, 10);
+        if (key === 'FEE_TUTE') TUTE_FEE = parseInt(value, 10);
         if (key.startsWith('GROUP_ID_')) {
             const grade = parseInt(key.replace('GROUP_ID_', ''), 10);
             const gIdx = GROUPS.findIndex(g => g.name === `Grade ${grade}`);
@@ -726,7 +732,7 @@ async function loadStudentsFromSheets() {
 
                     // Derived fields
                     studentObj.contactId = studentObj.phone ? (studentObj.phone.includes('@') ? studentObj.phone : `${studentObj.phone.replace(/\D/g, '')}@c.us`) : null;
-                    studentObj.fee = studentObj.wantsTutes ? 2500 : 1500;
+                    studentObj.fee = studentObj.wantsTutes ? TUTE_FEE : BASIC_FEE;
 
                     registeredStudentIds.set(normalizedId, studentObj);
 
@@ -1226,6 +1232,8 @@ client.on('message', async msg => {
 
 *2. Setting Details*
 • \`set school <name>\` - Change school branding.
+• \`set fee basic <val>\` - Set basic fee.
+• \`set fee tute <val>\` - Set tute fee.
 • \`set bank name <name>\` - Change Bank.
 • \`set bank accname <name>\` - Change Acc holder.
 • \`set bank number <no>\` - Change Account no.
@@ -1275,6 +1283,17 @@ client.on('message', async msg => {
                     const newName = body.substring(11).trim();
                     if (!newName) return await sendWA(from, '❌ School name cannot be empty.');
                     if (updateEnvFile('SCHOOL_NAME', newName)) return await sendWA(from, `✅ School name updated to: *${newName}*`);
+                }
+
+                if (target === 'fee') {
+                    const sub = parts[2]?.toLowerCase();
+                    const value = parts[3];
+                    if (!sub || isNaN(parseInt(value))) return await sendWA(from, '❌ Usage: set fee <basic|tute> <value>');
+                    
+                    const envKey = sub === 'basic' ? 'FEE_BASIC' : 'FEE_TUTE';
+                    if (updateEnvFile(envKey, value)) {
+                        return await sendWA(from, `✅ *${sub.toUpperCase()} FEE* updated to: LKR ${value}`);
+                    }
                 }
 
                 if (target === 'bank') {
@@ -1715,9 +1734,9 @@ client.on('message', async msg => {
                     userStates.set(from, STATES.ADDRESS);
                     return await sendWA(from, '🏠 Enter your *full shipping address*.\n\n🔙 _Type *back* to edit details_');
                 } else {
-                    data.fee = 1500;
+                    data.fee = BASIC_FEE;
                     userStates.set(from, STATES.RECEIPT);
-                    return await sendWA(from, `💰 *Fee:* LKR 1500\n\n${getBankLabel()}\n\n📸 Upload *receipt*.\n\n🔙 _Type *back* to edit details_`);
+                    return await sendWA(from, `💰 *Fee:* LKR ${BASIC_FEE}\n\n${getBankLabel()}\n\n📸 Upload *receipt*.\n\n🔙 _Type *back* to edit details_`);
                 }
             }
 
@@ -1725,9 +1744,9 @@ client.on('message', async msg => {
                 pushHistory(from, state, data);
                 data.address = body;
                 if (data.isNewStudent) {
-                    data.fee = 2500;
+                    data.fee = TUTE_FEE;
                     userStates.set(from, STATES.RECEIPT);
-                    return await sendWA(from, `💰 *Fee:* LKR 2500\n\n${getBankLabel()}\n\n📸 Upload *receipt*.\n\n🔙 _Type *back* to edit details_`);
+                    return await sendWA(from, `💰 *Fee:* LKR ${TUTE_FEE}\n\n${getBankLabel()}\n\n📸 Upload *receipt*.\n\n🔙 _Type *back* to edit details_`);
                 } else {
                     userStates.set(from, STATES.OLD_MONTH);
                     return await sendWA(from, '🗓️ Month (e.g. April)?\n\n🔙 _Type *back* to edit details_');
@@ -1877,7 +1896,7 @@ client.on('message', async msg => {
                 pushHistory(from, state, data);
                 data.months = resolved;
                 data.status = 'Pending';
-                data.fee = data.wantsTutes ? 2500 : 1500;
+                data.fee = data.wantsTutes ? TUTE_FEE : BASIC_FEE;
                 userStates.set(from, STATES.RECEIPT);
                 return await sendWA(from, `✅ Registered for *${resolved}*.\n\n💰 *Amount:* LKR ${data.fee}\n\n${getBankLabel()}\n\n📸 Upload receipt.`);
             }
