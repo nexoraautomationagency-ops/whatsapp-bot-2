@@ -381,7 +381,8 @@ function isValidEmail(email) {
  */
 function isValidPhone(phone) {
     const cleaned = phone.replace(/\D/g, '');
-    return cleaned.length >= 9 && cleaned.length <= 15;
+    // Rules: Exactly 10 digits, starts with 0, valid SL mobile prefix
+    return /^0(70|71|72|74|75|76|77|78)\d{7}$/.test(cleaned);
 }
 
 /**
@@ -1701,7 +1702,7 @@ client.on('message', async msg => {
                 return await sendWA(from, '📫 Got it. Now, your *phone number*?\n\n🔙 _Type *back* to edit details_');
 
             case STATES.PHONE:
-                if (!isValidPhone(body)) return await sendWA(from, '❌ Invalid phone.');
+                if (!isValidPhone(body)) return await sendWA(from, '❌ Invalid phone. Please enter a 10-digit number starting with 0 (e.g., 0771234567).');
                 pushHistory(from, state, data);
                 data.phone = cleanPhoneNumber(body);
                 userStates.set(from, STATES.GRADE);
