@@ -65,7 +65,7 @@ const DRIVE_FOLDER_ID = process.env.DRIVE_FOLDER_ID;
 const RANGE = 'Sheet1!A:L'; // Includes School column
 
 // Sheet Headers
-const STUDENT_HEADERS = ['Student ID', 'Name', 'School', 'Grade', 'Month', 'Phone', 'Email', 'Tutes', 'Address', 'Status', 'Receipt URL', 'Group ID'];
+const STUDENT_HEADERS = ['Student ID', 'Name', 'School', 'Grade', 'Month', 'Phone', 'Tutes', 'Address', 'Status', 'Receipt URL', 'Group ID'];
 
 // Pricing Configuration
 let BASIC_FEE = parseInt(process.env.FEE_BASIC || '1500', 10);
@@ -114,7 +114,6 @@ const STATES = {
     START: 'start',
     NAME: 'name',
     SCHOOL: 'school',
-    EMAIL: 'email',
     PHONE: 'phone',
     GRADE: 'grade',
     MONTHS: 'months',
@@ -756,8 +755,6 @@ async function loadStudentsFromSheets() {
                         grade: gradeIdx >= 0 ? parseInt(row[gradeIdx], 10) : NaN,
                         months: monthIdx >= 0 ? (row[monthIdx] || '') : '',
                         phone: phoneIdx >= 0 ? (row[phoneIdx] || '') : '',
-                        email: emailIdx >= 0 ? (row[emailIdx] || '') : '',
-                        wantsTutes: tutesIdx >= 0 ? row[tutesIdx] === 'Yes' : false,
                         address: addrIdx >= 0 ? (row[addrIdx] || null) : null,
                         status: statusIdx >= 0 ? (row[statusIdx] || 'Pending') : 'Pending',
                         receiptUrl: receiptIdx >= 0 ? (row[receiptIdx] || null) : null,
@@ -771,7 +768,6 @@ async function loadStudentsFromSheets() {
                         studentObj.grade = parseInt(hasSchool ? row[3] : row[2], 10);
                         studentObj.months = hasSchool ? row[4] : row[3];
                         studentObj.phone = hasSchool ? row[5] : row[4];
-                        studentObj.email = hasSchool ? row[6] : row[5];
                         studentObj.wantsTutes = (hasSchool ? row[7] : row[6]) === 'Yes';
                     }
 
@@ -827,7 +823,6 @@ async function upsertStudentData(studentData, forceStatus = null, oldGrade = nul
             studentData.grade,
             monthLabel,
             cleanedPhone,
-            studentData.email,
             studentData.wantsTutes ? 'Yes' : 'No',
             studentData.address || '',
             status,
@@ -1667,7 +1662,7 @@ client.on('message', async msg => {
                 const student = registeredStudentIds.get(studentId);
                 if (!student) return await sendWA(from, '❌ Student not found.');
 
-                const validFields = ['name', 'school', 'grade', 'phone', 'email', 'address', 'status', 'month'];
+                const validFields = ['name', 'school', 'grade', 'phone', 'address', 'status', 'month'];
                 if (!validFields.includes(field)) return await sendWA(from, `❌ Invalid field. Valid fields: ${validFields.join(', ')}`);
 
                 // Capture original values for Cleanup logic
@@ -1683,13 +1678,8 @@ client.on('message', async msg => {
                     student.grade = g;
                 }
                 else if (field === 'phone') {
-                    if (!isValidPhone(value)) return await sendWA(from, '❌ Invalid phone.');
                     student.phone = cleanPhoneNumber(value);
                     student.contactId = `${student.phone}@c.us`;
-                }
-                else if (field === 'email') {
-                    if (!isValidEmail(value)) return await sendWA(from, '❌ Invalid email.');
-                    student.email = value;
                 }
                 else if (field === 'address') student.address = value;
                 else if (field === 'status') student.status = value;
@@ -1750,18 +1740,16 @@ client.on('message', async msg => {
                 const all = [
                     '1. Name',
                     '2. School',
-                    '3. Email',
-                    '4. Phone',
-                    '5. Grade',
-                    '6. Month',
-                    '7. Tute Choice'
+                    '3. Phone',
+                    '4. Grade',
+                    '5. Month',
+                    '6. Tute Choice'
                 ];
                 if (state === STATES.SCHOOL) options = all.slice(0, 1);
-                else if (state === STATES.EMAIL) options = all.slice(0, 2);
-                else if (state === STATES.PHONE) options = all.slice(0, 3);
-                else if (state === STATES.GRADE) options = all.slice(0, 4);
-                else if (state === STATES.MONTHS) options = all.slice(0, 5);
-                else if (state === STATES.TUTES_OPTION) options = all.slice(0, 6);
+                else if (state === STATES.PHONE) options = all.slice(0, 2);
+                else if (state === STATES.GRADE) options = all.slice(0, 3);
+                else if (state === STATES.MONTHS) options = all.slice(0, 4);
+                else if (state === STATES.TUTES_OPTION) options = all.slice(0, 5);
                 else if (state === STATES.ADDRESS || state === STATES.RECEIPT) options = all;
             } else {
                 const all = [
@@ -1814,15 +1802,8 @@ client.on('message', async msg => {
                 if (body.length < 2) return await sendWA(from, '❌ Please enter a valid school name.');
                 pushHistory(from, state, data);
                 data.school = body;
-                userStates.set(from, STATES.EMAIL);
-                return await sendWA(from, '📧 Great. What is your *email address*?\n\n🔙 _Type *back* to edit details_');
-
-            case STATES.EMAIL:
-                if (!isValidEmail(body)) return await sendWA(from, '❌ Invalid email.');
-                pushHistory(from, state, data);
-                data.email = body;
                 userStates.set(from, STATES.PHONE);
-                return await sendWA(from, '📫 Got it. Now, your *phone number*?\n\n🔙 _Type *back* to edit details_');
+                return await sendWA(from, '📫 Great. What is your *phone number*?\n\n🔙 _Type *back* to edit details_');
 
             case STATES.PHONE:
                 if (!isValidPhone(body)) return await sendWA(from, '❌ Invalid phone. Please enter a 10-digit number starting with 0 (e.g., 0771234567).');
@@ -2064,12 +2045,11 @@ client.on('message', async msg => {
                     switch (choice) {
                         case 1: userStates.set(from, STATES.NAME); return await sendWA(from, '🤝 Please enter your *full name*.');
                         case 2: userStates.set(from, STATES.SCHOOL); return await sendWA(from, '🏫 What is your *school name*?');
-                        case 3: userStates.set(from, STATES.EMAIL); return await sendWA(from, '📧 What is your *email address*?');
-                        case 4: userStates.set(from, STATES.PHONE); return await sendWA(from, '📫 What is your *phone number*?');
-                        case 5: userStates.set(from, STATES.GRADE); return await sendWA(from, '🎓 Which *Grade* (6-11)?');
-                        case 6: userStates.set(from, STATES.MONTHS); return await sendWA(from, '🗓️ Which *month* (e.g. April)?');
-                        case 7: userStates.set(from, STATES.TUTES_OPTION); return await sendWA(from, '📦 Include *tutes* (yes/no)?');
-                        default: return await sendWA(from, '❌ Invalid choice. Please type a number (1-7) from the menu.');
+                        case 3: userStates.set(from, STATES.PHONE); return await sendWA(from, '📫 What is your *phone number*?');
+                        case 4: userStates.set(from, STATES.GRADE); return await sendWA(from, '🎓 Which *Grade* (6-11)?');
+                        case 5: userStates.set(from, STATES.MONTHS); return await sendWA(from, '🗓️ Which *month* (e.g. April)?');
+                        case 6: userStates.set(from, STATES.TUTES_OPTION); return await sendWA(from, '📦 Include *tutes* (yes/no)?');
+                        default: return await sendWA(from, '❌ Invalid choice. Please type a number (1-6) from the menu.');
                     }
                 } else {
                     switch (choice) {
