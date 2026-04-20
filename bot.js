@@ -149,7 +149,8 @@ let sessionSavePending = false;
 // Google ID Cache for performance
 const driveCache = {
     gradeFolders: new Map(), // Grade Name -> Folder ID
-    monthlySheets: new Map() // Grade+Month -> Spreadsheet ID
+    monthlySheets: new Map(), // Grade+Month -> Spreadsheet ID
+    sheetTitles: new Map()   // Spreadsheet ID -> Main Sheet Title
 };
 
 /**
@@ -655,7 +656,26 @@ async function getOrCreateSheet(sheets, spreadsheetId, sheetTitle) {
         });
         await ensureSpreadsheetHeaders(sheets, spreadsheetId, sheetTitle);
     }
+    // Update cache
+    driveCache.sheetTitles.set(spreadsheetId, sheetTitle);
     return sheetTitle;
+}
+
+/**
+ * Returns the title of the first visible sheet in a spreadsheet.
+ */
+async function getMainSheetTitle(sheets, spreadsheetId) {
+    if (driveCache.sheetTitles.has(spreadsheetId)) return driveCache.sheetTitles.get(spreadsheetId);
+    
+    try {
+        const ss = await sheets.spreadsheets.get({ spreadsheetId });
+        const title = ss.data.sheets[0].properties.title;
+        driveCache.sheetTitles.set(spreadsheetId, title);
+        return title;
+    } catch (e) {
+        console.warn(`[Sheets] Failed to get main sheet title for ${spreadsheetId}:`, e.message);
+        return 'Sheet1';
+    }
 }
 
 /**
@@ -819,23 +839,23 @@ async function upsertStudentData(studentData, forceStatus = null, oldGrade = nul
         // 2. Update Monthly
         const folderId = await getOrCreateFolder(drive, MAIN_DATABASE_FOLDER_ID, `Grade ${studentData.grade}`);
         const monthlyFileId = await getOrCreateMonthlySpreadsheet(drive, sheets, folderId, monthLabel);
-        await ensureSpreadsheetHeaders(sheets, monthlyFileId);
+        const monthlySheetTitle = await getMainSheetTitle(sheets, monthlyFileId);
 
-        const monthRes = await sheets.spreadsheets.values.get({ spreadsheetId: monthlyFileId, range: 'Sheet1!A:L' });
+        const monthRes = await sheets.spreadsheets.values.get({ spreadsheetId: monthlyFileId, range: `${monthlySheetTitle}!A:L` });
         const monthRows = monthRes.data.values || [];
         const moIndex = monthRows.findIndex(r => normalizeStudentId(r[0]) === studentData.idNumber);
 
         if (moIndex >= 0) {
             await sheets.spreadsheets.values.update({
                 spreadsheetId: monthlyFileId,
-                range: `Sheet1!A${moIndex + 1}:L${moIndex + 1}`,
+                range: `${monthlySheetTitle}!A${moIndex + 1}:L${moIndex + 1}`,
                 valueInputOption: 'RAW',
                 resource: { values: rowValues }
             });
         } else {
             await sheets.spreadsheets.values.append({
                 spreadsheetId: monthlyFileId,
-                range: 'Sheet1!A:L',
+                range: `${monthlySheetTitle}!A:L`,
                 valueInputOption: 'RAW',
                 resource: { values: rowValues }
             });
@@ -915,20 +935,27 @@ async function deleteStudentFromMonthlyFile(sheets, drive, grade, month, idNumbe
 
         if (response.data.files.length === 0) return;
         const spreadsheetId = response.data.files[0].id;
+        const sheetTitle = await getMainSheetTitle(sheets, spreadsheetId);
 
-        const res = await sheets.spreadsheets.values.get({ spreadsheetId, range: 'Sheet1!A:A' });
+        const res = await sheets.spreadsheets.values.get({ spreadsheetId, range: `${sheetTitle}!A:A` });
         const rows = res.data.values || [];
         const rowIndex = rows.findIndex(r => normalizeStudentId(r[0]) === normalizeStudentId(idNumber));
 
         if (rowIndex >= 0) {
             console.log(`[Cleanup] Removing ${idNumber} from Grade ${grade} (${monthLabel}) at row ${rowIndex + 1}`);
+            
+            // Get sheet ID for batchUpdate
+            const ss = await sheets.spreadsheets.get({ spreadsheetId });
+            const sheet = ss.data.sheets.find(s => s.properties.title === sheetTitle);
+            const sheetId = sheet ? sheet.properties.sheetId : 0;
+
             await sheets.spreadsheets.batchUpdate({
                 spreadsheetId,
                 resource: {
                     requests: [{
                         deleteDimension: {
                             range: {
-                                sheetId: 0,
+                                sheetId,
                                 dimension: 'ROWS',
                                 startIndex: rowIndex,
                                 endIndex: rowIndex + 1
@@ -971,9 +998,10 @@ async function saveComplaintToSheets(phoneNumber, complaintText) {
             });
         }
 
+        const sheetTitle = await getMainSheetTitle(sheets, spreadsheetId);
         await sheets.spreadsheets.values.append({
             spreadsheetId,
-            range: 'Sheet1!A:D',
+            range: `${sheetTitle}!A:D`,
             valueInputOption: 'RAW',
             resource: { values: [[new Date().toISOString(), phoneNumber, complaintText, 'Unresolved']] }
         });
@@ -1249,6 +1277,7 @@ client.on('message', async msg => {
 • \`settings\` - View current bot config.
 • \`listadmins\` - Show all admin WhatsApp IDs.
 • \`status <id>\` - Search student details.
+• \`search name <text>\` - Search students by name.
 • \`approve <id>\` - Approve student.
 • \`reject <id> [reason]\` - Deny student.
 • \`list pending\` - Show students waiting for approval.
@@ -1477,6 +1506,25 @@ client.on('message', async msg => {
                 return await sendWA(from, list);
             }
 
+            // Command: Search by Name
+            if (lowerBody.startsWith('search name ')) {
+                const query = body.substring(12).trim().toLowerCase();
+                if (query.length < 3) return await sendWA(from, '❌ Please enter at least 3 characters to search.');
+                
+                const matches = Array.from(registeredStudentIds.values())
+                    .filter(s => s.name.toLowerCase().includes(query) || (s.school && s.school.toLowerCase().includes(query)));
+                
+                if (matches.length === 0) return await sendWA(from, `ℹ️ No students found matching "${query}".`);
+                
+                let list = `🔍 *SEARCH RESULTS FOR "${query}" (${matches.length})*\n\n`;
+                matches.slice(0, 15).forEach((s, i) => {
+                    list += `${i+1}. *${s.idNumber}* - ${s.name}\nGrade: ${s.grade} | Status: ${s.status}\n\n`;
+                });
+                if (matches.length > 15) list += `_...and ${matches.length - 15} more matches._`;
+                
+                return await sendWA(from, list);
+            }
+
             // Command: Status Search
             if (lowerBody.startsWith('status ')) {
                 const studentId = normalizeStudentId(body.substring(7));
@@ -1662,10 +1710,24 @@ client.on('message', async msg => {
 
             case STATES.START:
                 if (body === '1' || lowerBody.includes('admission')) {
+                    // Duplicate Check: See if this phone is already registered
+                    const cleanedPhone = cleanPhoneNumber(from.split('@')[0]);
+                    const existing = Array.from(registeredStudentIds.values()).find(s => cleanPhoneNumber(s.phone) === cleanedPhone);
+                    
+                    if (existing) {
+                        return await sendWA(from, `👋 Hi *${existing.name}*!\n\nIt looks like you are already registered with ID: *${existing.idNumber}*.\n\nTo pay for a new month, please use option *2️⃣ - Monthly registration* from the main menu.\n\n_If you need to register a DIFFERENT person, please type *continue*._`);
+                    }
+
                     pushHistory(from, state, data);
                     data.isNewStudent = true;
                     userStates.set(from, STATES.NAME);
                     return await sendWA(from, '🤝 Welcome! Please enter your *full name* to start.\n\n🔙 _Type *back* to edit details | *menu* to exit_');
+                }
+                // Allow bypassing duplicate check
+                if (lowerBody === 'continue' && userHistory.get(from)?.slice(-1)[0]?.state === STATES.START) {
+                    data.isNewStudent = true;
+                    userStates.set(from, STATES.NAME);
+                    return await sendWA(from, '🤝 Continuing with new registration. Please enter your *full name*.');
                 }
                 if (body === '2' || lowerBody.includes('monthly')) {
                     pushHistory(from, state, data);
