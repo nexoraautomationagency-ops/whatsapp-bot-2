@@ -1028,6 +1028,88 @@ async function saveComplaintToSheets(phoneNumber, complaintText) {
 }
 
 /**
+ * Retrieves payment status for all students in a grade for a specific month.
+ * Returns { paid: [], unpaid: [], pending: [], monthLabel } where each entry
+ * is a student object from registeredStudentIds.
+ */
+async function getMonthlyPayments(grade, monthRaw) {
+    const monthLabel = buildMonthYearLabel(monthRaw);
+    if (!monthLabel) return null;
+
+    const gradeNum = parseInt(grade, 10);
+    if (isNaN(gradeNum) || gradeNum < 6 || gradeNum > 11) return null;
+
+    // 1. Get all students of this grade from the master cache
+    const allStudents = Array.from(registeredStudentIds.values())
+        .filter(s => parseInt(s.grade, 10) === gradeNum && s.status !== 'DELETED' && s.status !== 'Rejected' && s.status !== 'Kicked');
+
+    if (allStudents.length === 0) return { paid: [], unpaid: [], pending: [], monthLabel, total: 0 };
+
+    // 2. Try to find the monthly spreadsheet for this grade + month
+    const paidIds = new Set();
+    const pendingIds = new Set();
+
+    try {
+        const drive = await getDriveClient();
+        const sheets = await getSheetsClient();
+
+        const folderId = await getOrCreateFolder(drive, MAIN_DATABASE_FOLDER_ID, `Grade ${gradeNum}`);
+        const query = `'${folderId}' in parents and name = '${monthLabel}' and mimeType = 'application/vnd.google-apps.spreadsheet' and trashed = false`;
+        const response = await drive.files.list({ q: query, fields: 'files(id, name)' });
+
+        if (response.data.files.length > 0) {
+            const spreadsheetId = response.data.files[0].id;
+            const sheetTitle = await getMainSheetTitle(sheets, spreadsheetId);
+            const res = await sheets.spreadsheets.values.get({
+                spreadsheetId,
+                range: `${sheetTitle}!A:L`
+            });
+
+            const rows = res.data.values || [];
+            if (rows.length > 1) {
+                const headers = rows[0].map(h => h.trim().toLowerCase());
+                const idIdx = headers.findIndex(h => h.includes('student id'));
+                const statusIdx = headers.findIndex(h => h.includes('status'));
+
+                for (let i = 1; i < rows.length; i++) {
+                    const row = rows[i];
+                    const sid = idIdx >= 0 ? normalizeStudentId(row[idIdx]) : normalizeStudentId(row[0]);
+                    const status = statusIdx >= 0 ? (row[statusIdx] || '').trim() : '';
+
+                    if (!sid) continue;
+                    if (status === 'Approved') {
+                        paidIds.add(sid);
+                    } else if (status === 'Pending') {
+                        pendingIds.add(sid);
+                    }
+                }
+            }
+        }
+    } catch (e) {
+        console.error(`[Payments] Error reading monthly sheet for Grade ${gradeNum} (${monthLabel}):`, e.message);
+        throw new Error(`Failed to read payment records from Google Sheets for Grade ${gradeNum} (${monthLabel}). Please try again later.`);
+    }
+
+    // 3. Categorize students
+    const paid = [];
+    const pending = [];
+    const unpaid = [];
+
+    for (const student of allStudents) {
+        const nid = normalizeStudentId(student.idNumber);
+        if (paidIds.has(nid)) {
+            paid.push(student);
+        } else if (pendingIds.has(nid)) {
+            pending.push(student);
+        } else {
+            unpaid.push(student);
+        }
+    }
+
+    return { paid, pending, unpaid, monthLabel, total: allStudents.length };
+}
+
+/**
  * Resolves free-text month input to canonical "Month-YYYY" format.
  */
 function resolveMonthInput(rawInput) {
@@ -1322,7 +1404,11 @@ client.on('message', async msg => {
 • \`set admin add <id>\` - Add new admin ID.
 • \`set admin remove <id>\` - Delete admin ID.
 
-*4. Commands*
+*4. Payment Tracking*
+• \`check payments <grade> <month>\` - See paid/unpaid list.
+• \`remind unpaid <grade> <month>\` - Send reminders.
+
+*5. Commands*
 • \`settings\` - View current bot config.
 • \`listadmins\` - Show all admin WhatsApp IDs.
 • \`status <id>\` - Search student details.
@@ -1458,6 +1544,91 @@ client.on('message', async msg => {
                     } catch (e) { console.error(`Broadcast failed for ${student.idNumber}:`, e.message); }
                 }
                 return await sendWA(from, `✅ *Broadcast Finished*\nSent to ${success}/${students.length} students.`);
+            }
+
+            // Command: Check Payments
+            if (lowerBody.startsWith('check payments ')) {
+                const parts = body.split(/\s+/);
+                const grade = parts[2];
+                const monthRaw = parts.slice(3).join(' ');
+                if (!grade || !monthRaw) return await sendWA(from, '❌ Usage: check payments <grade> <month>\nExample: check payments 10 April');
+
+                await sendWA(from, '⏳ _Checking payment records..._');
+                try {
+                    const result = await getMonthlyPayments(grade, monthRaw);
+                    if (!result) return await sendWA(from, '❌ Invalid grade (6-11) or month format.');
+                    if (result.total === 0) return await sendWA(from, `ℹ️ No students registered for Grade ${grade}.`);
+
+                    let msg = `💰 *PAYMENT REPORT*\n📅 *${result.monthLabel}* | Grade *${grade}*\n\n`;
+                    msg += `✅ Paid: *${result.paid.length}*\n`;
+                    msg += `⏳ Pending: *${result.pending.length}*\n`;
+                    msg += `❌ Unpaid: *${result.unpaid.length}*\n`;
+                    msg += `📊 Total: *${result.total}*\n`;
+
+                    if (result.paid.length > 0) {
+                        msg += `\n✅ *PAID STUDENTS:*\n`;
+                        result.paid.forEach((s, i) => msg += `${i + 1}. ${s.idNumber} - ${s.name}\n`);
+                    }
+
+                    if (result.pending.length > 0) {
+                        msg += `\n⏳ *PENDING APPROVAL:*\n`;
+                        result.pending.forEach((s, i) => msg += `${i + 1}. ${s.idNumber} - ${s.name}\n`);
+                    }
+
+                    if (result.unpaid.length > 0) {
+                        msg += `\n❌ *UNPAID STUDENTS:*\n`;
+                        result.unpaid.forEach((s, i) => msg += `${i + 1}. ${s.idNumber} - ${s.name}\n`);
+                    }
+
+                    if (result.unpaid.length > 0) {
+                        msg += `\n💡 _Type \`remind unpaid ${grade} ${monthRaw}\` to send reminders._`;
+                    }
+
+                    return await sendWA(from, msg);
+                } catch (e) {
+                    console.error('[Payments] Check error:', e.message);
+                    return await sendWA(from, `❌ Error checking payments: ${e.message}`);
+                }
+            }
+
+            // Command: Remind Unpaid Students
+            if (lowerBody.startsWith('remind unpaid ')) {
+                const parts = body.split(/\s+/);
+                const grade = parts[2];
+                const monthRaw = parts.slice(3).join(' ');
+                if (!grade || !monthRaw) return await sendWA(from, '❌ Usage: remind unpaid <grade> <month>\nExample: remind unpaid 10 April');
+
+                await sendWA(from, '⏳ _Fetching unpaid students..._');
+                try {
+                    const result = await getMonthlyPayments(grade, monthRaw);
+                    if (!result) return await sendWA(from, '❌ Invalid grade (6-11) or month format.');
+                    if (result.unpaid.length === 0) return await sendWA(from, `🎉 All Grade ${grade} students have paid for *${result.monthLabel}*!`);
+
+                    await sendWA(from, `🚀 *Sending reminders to ${result.unpaid.length} students...*`);
+
+                    let success = 0;
+                    let failed = 0;
+                    for (const student of result.unpaid) {
+                        try {
+                            const contactId = student.contactId || (student.phone ? `${student.phone.replace(/\D/g, '')}@c.us` : null);
+                            if (!contactId) { failed++; continue; }
+
+                            const reminder = `📢 *Payment Reminder*\n\nHello *${student.name}*,\n\nThis is a friendly reminder that your tuition fee for *${result.monthLabel}* has not been received yet.\n\n💰 *Fee:* LKR ${student.wantsTutes ? TUTE_FEE : BASIC_FEE}\n\n${getBankLabel()}\n\nPlease make the payment and send the receipt here.\n\n_If you have already paid, please ignore this message._`;
+
+                            await sendWA(contactId, reminder);
+                            success++;
+                            await delay(ADMIN_BROADCAST_DELAY_MS);
+                        } catch (e) {
+                            console.error(`[Reminder] Failed for ${student.idNumber}:`, e.message);
+                            failed++;
+                        }
+                    }
+
+                    return await sendWA(from, `✅ *Reminders Sent!*\n\n📬 Delivered: ${success}\n❌ Failed: ${failed}\n📊 Total Unpaid: ${result.unpaid.length}`);
+                } catch (e) {
+                    console.error('[Reminder] Error:', e.message);
+                    return await sendWA(from, `❌ Error sending reminders: ${e.message}`);
+                }
             }
 
             if (lowerBody === 'getgroups') {
